@@ -46,7 +46,7 @@ public class Main extends NexacroUpdatorActivity implements LifecycleOwner{
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             String someText = intent.getStringExtra(Intent.EXTRA_TEXT);
             Log.e(LOG_TAG, someText);
-            PreferenceManager.setString(getApplicationContext(),"testKey",someText);
+            PreferenceManager2.setString(getApplicationContext(),"testKey",someText);
         }
 
         String bootstrapURL = intent.getStringExtra("bootstrapURL");
@@ -84,6 +84,7 @@ public class Main extends NexacroUpdatorActivity implements LifecycleOwner{
     @NonNull
     @Override
     public Lifecycle getLifecycle() {
+
         return mLifecycleRegistry;
     }
 }

@@ -1,9 +1,9 @@
-package com.tobesoft.plugin.sharesheet;
+package com.example.androidruntime;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class PreferenceManager {
+public class PreferenceManager2 {
     public static final String PREFERENCES_NAME = "rebuild_preference";
     private static final String DEFAULT_VALUE_STRING = "";
     private static final boolean DEFAULT_VALUE_BOOLEAN = false;

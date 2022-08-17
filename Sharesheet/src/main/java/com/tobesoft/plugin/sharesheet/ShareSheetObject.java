@@ -55,9 +55,7 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
         mActivity = (Activity) NexacroActivity.getInstance();
 
 
-
         Log.e(LOG_TAG,objectId);
-
     }
 
     @Override
@@ -82,11 +80,7 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
                 if (mServiceId.equals("test")) {
 
                     // App(Main)에서 저장한 데이터를 NexacroActivityExt에서 꺼내서 모듈로 리턴.
-
-
-
                     send(CODE_SUCCES, mShareSheetInterface.getShareSheetData());
-                    send(CODE_SUCCES,mViewModel.getMutableData());
 
                 }
             }catch (Exception e) {
