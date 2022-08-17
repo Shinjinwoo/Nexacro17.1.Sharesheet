@@ -1,0 +1,3 @@
+include ':Sharesheet'
+include ':app'
+rootProject.name = "nexacro17.1.Sharesheet"

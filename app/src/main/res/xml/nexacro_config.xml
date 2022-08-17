@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nexacro-config>
+    <application dialog-position="center" file-logging="true" quiet="false"/>
+    <updator cancelable="true" force="true" errormsg="true" quiet="false"/>
+    <xpush-server request-missing-message="true"/>
+    <notification enable="false" handler="com.nexacro.notification.DefaultHandler"/>
+</nexacro-config>

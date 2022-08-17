@@ -1,0 +1,10 @@
+﻿{
+	"name": "Sharesheet",
+	"version": "1.0.0.0",
+	"description": "Sharesheet for nexacro platform",
+	"license": "",
+	"scripts": [
+        "Sharesheet/Sharesheet.js",
+	]
+}
+//@ sourceURL=Sharesheet.json
