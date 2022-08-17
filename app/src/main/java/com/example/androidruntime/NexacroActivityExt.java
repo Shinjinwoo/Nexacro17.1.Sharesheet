@@ -62,6 +62,8 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
         // 이때 필요한게 LifeCycle Observer 이다.
         // LifeCycle Observer를 통해서 Main이 죽어있는 상태라는 걸 알 수있다.
         // ex ) -> NexacroAcitvity가 onPause 상태일때 옵저버에 알린다. ( 왜냐하면 초기 실행시 Main의 onDestory를 거치며 NexacroAcitvity가 onResume 상태로 들어오기 때문 )
+        // 이제 여기서 문제가 생긴다. Intent를 action 필터를 통해 받게 되는데에.........
+        // 얘는 Main이나 Nexacro의 Activity 상태가 어떤지 1도 관심이 없고 필터링 할 방법이 없다.
         //
 
         Log.e(LOG_TAG, "onResume");
