@@ -7,6 +7,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class PreferenceManager {
 
     public static final String PREFERENCES_NAME = "rebuild_preference";
@@ -15,6 +20,10 @@ public class PreferenceManager {
     private static final int DEFAULT_VALUE_INT = -1;
     private static final long DEFAULT_VALUE_LONG = -1L;
     private static final float DEFAULT_VALUE_FLOAT = -1F;
+    public static final int CODE_SUCCES = 0;
+    public static final int CODE_ERROR = -1;
+
+    private static ShareSheetObject mShareSheetObject;
 
 
     /**
@@ -25,13 +34,27 @@ public class PreferenceManager {
      * @param intent
      */
     public static void setIntentToJson(Context context, String key, Intent intent) {
+        SharedPreferences prefs = getPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+
         String action = intent.getAction();
         String type = intent.getType();
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             String someText = intent.getStringExtra(Intent.EXTRA_TEXT);
             Log.d("PreferenceManager", "setIntentToJson: " + someText);
 
-            PreferenceManager.setString(context,key,someText);
+            JSONObject jsonObject = new JSONObject();
+
+            try {
+                jsonObject.put("action",action);
+                jsonObject.put("type",type);
+                jsonObject.put("value",someText);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            editor.putString(key, String.valueOf(jsonObject));
+            editor.commit();
         }
     }
 
@@ -254,5 +277,6 @@ public class PreferenceManager {
         edit.clear();
         edit.commit();
     }
+
 }
 

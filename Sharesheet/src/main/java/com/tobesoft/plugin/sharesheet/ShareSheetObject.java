@@ -22,6 +22,7 @@ import com.nexacro.plugin.NexacroPlugin;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -50,6 +51,8 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
     public static final int CODE_ERROR = -1;
     public String mServiceId = "";
 
+    private static ShareSheetObject mShareSheetObject;
+
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
 
@@ -60,6 +63,10 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
         mShareSheetInterface.setShareSheetObject(this);
 
         mActivity = (Activity) NexacroActivity.getInstance();
+    }
+
+    public static ShareSheetObject getInstance() {
+        return mShareSheetObject;
     }
 
     @Override
@@ -83,14 +90,29 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
 
                     String someText = PreferenceManager.getString( mActivity,"testKey");
 
-                    if(someText != null){
-                        send(CODE_SUCCES,someText);
-                    }
+//                    if(someText != null){
+//                        send(CODE_SUCCES,someText);
+//                    }
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
             }
         }
+    }
+
+    public void execute(JSONObject jsonObject ) {
+        try {
+            String action = jsonObject.getString("action");
+            String type = jsonObject.getString("type");
+            String value = jsonObject.getString("value");
+
+            send(CODE_SUCCES,"action : " + action + " type : " + type + " value:" + value);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

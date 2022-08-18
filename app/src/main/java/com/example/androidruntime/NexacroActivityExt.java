@@ -2,6 +2,7 @@ package com.example.androidruntime;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.JsonWriter;
 import android.util.Log;
 import android.view.View;
 
@@ -13,6 +14,8 @@ import com.tobesoft.plugin.sharesheet.PreferenceManager;
 import com.tobesoft.plugin.sharesheet.ShareSheetObject;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.reactivestreams.Subscriber;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -41,8 +44,16 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     protected void onResume() {
         super.onResume();
         String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
-        Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
-        Log.e(LOG_TAG, "onResume");
+        if (!sendText.isEmpty()) {
+            try {
+                JSONObject jsonObject = new JSONObject(sendText);
+                mShareSheetObject.execute(jsonObject);
+                Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+                Log.e(LOG_TAG, "onResume");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
