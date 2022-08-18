@@ -37,7 +37,7 @@ import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
-public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleObserver {
+public class ShareSheetObject extends NexacroPlugin {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
     private static final String SVCID = "svcid";
@@ -85,14 +85,7 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
                 JSONObject params = paramObject.getJSONObject("params");
                 mServiceId = params.getString("serviceid");
                 if (mServiceId.equals("test")) {
-                    // App(Main)에서 저장한 데이터를 NexacroActivityExt에서 꺼내서 모듈로 리턴.
-                    send(CODE_SUCCES,"모듈 연동 성공");
-
-                    String someText = PreferenceManager.getString( mActivity,"testKey");
-
-//                    if(someText != null){
-//                        send(CODE_SUCCES,someText);
-//                    }
+                    send(CODE_SUCCES, "모듈 연동 성공");
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
@@ -100,19 +93,26 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
         }
     }
 
-    public void execute(JSONObject jsonObject ) {
+    public void execute(JSONObject jsonObject) {
         try {
             String action = jsonObject.getString("action");
             String type = jsonObject.getString("type");
             String value = jsonObject.getString("value");
 
-            send(CODE_SUCCES,"action : " + action + " type : " + type + " value:" + value);
+            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
+                handleSendText(value);
+            } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
+                handleSendImage(value);
+            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
 
+            } else {
+                send(CODE_ERROR, jsonObject);
+            }
 
         } catch (JSONException e) {
+            send(CODE_ERROR, e);
             e.printStackTrace();
         }
-
     }
 
 
@@ -155,60 +155,56 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
         return false;
     }
 
-    @Override
-    public void onDestroy(@NonNull LifecycleOwner owner) {
-        DefaultLifecycleObserver.super.onDestroy(owner);
+
+    private void handleSendText(String value) {
+        if (value != null) {
+            send("text/plain", CODE_SUCCES, value);
+        }
     }
 
+    public void handleSendImage(String value) {
+        Uri imageUri = Uri.parse(value);
+        if (imageUri != null) {
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), imageUri);
+                ImageUtil imageUtil = ImageUtil.getInstance();
 
-    //    public void handleSendText(Intent intent) {
-//        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-//        if (sharedText != null) {
-//            send("text/plain", CODE_SUCCES, sharedText);
-//        }
-//    }
-//
-//    public void handleSendImage(Intent intent) {
-//        Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-//        if (imageUri != null) {
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), imageUri);
-//                ImageUtil imageUtil = ImageUtil.getInstance();
-//
-//                Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
-//                String sharedImage = imageUtil.bitmapToBase64(resizeBitmap);
-//
-//                send("singleImage", CODE_SUCCES, sharedImage);
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//
-//    public void handleSendMultipleImages(Intent intent) {
-//        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-//
-//        Log.e(LOG_TAG, String.valueOf(imageUris));
-//        if (imageUris != null) {
-//            try {
-//                ImageUtil imageUtil = ImageUtil.getInstance();
-//                ArrayList<Bitmap> bitmaps = new ArrayList<>();
-//                ArrayList<String> sharedImages = new ArrayList<>();
-//
-//                for (int i = 0; i == imageUris.size(); i++) {
-//                    bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), imageUris.get(i)));
-//                    Log.e(LOG_TAG, bitmaps.toString());
-//                    sharedImages.add(i, imageUtil.bitmapToBase64(bitmaps.get(i)));
-//                }
-//
-//                Log.e(LOG_TAG, String.valueOf(bitmaps));
-//
-//                //send("multipleImages",CODE_SUCCES,sharedImages);
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+                Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
+                String sharedImage = imageUtil.bitmapToBase64(resizeBitmap);
+
+                Log.d(LOG_TAG,sharedImage);
+
+                send("singleImage", CODE_SUCCES, sharedImage);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void handleSendMultipleImages(Intent intent) {
+        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+
+        Log.e(LOG_TAG, String.valueOf(imageUris));
+        if (imageUris != null) {
+            try {
+                ImageUtil imageUtil = ImageUtil.getInstance();
+                ArrayList<Bitmap> bitmaps = new ArrayList<>();
+                ArrayList<String> sharedImages = new ArrayList<>();
+
+                for (int i = 0; i == imageUris.size(); i++) {
+                    bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), imageUris.get(i)));
+                    Log.e(LOG_TAG, bitmaps.toString());
+                    sharedImages.add(i, imageUtil.bitmapToBase64(bitmaps.get(i)));
+                }
+
+                Log.e(LOG_TAG, String.valueOf(bitmaps));
+
+                send("multipleImages", CODE_SUCCES, sharedImages);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

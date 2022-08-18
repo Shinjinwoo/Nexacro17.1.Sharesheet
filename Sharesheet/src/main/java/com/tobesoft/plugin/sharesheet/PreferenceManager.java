@@ -5,12 +5,15 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class PreferenceManager {
 
@@ -39,8 +42,20 @@ public class PreferenceManager {
 
         String action = intent.getAction();
         String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            String someText = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+        if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+            String someText = "";
+            ArrayList<Parcelable> someMultipleText;
+            if ("text/plain".equals(type)) {
+                someText = intent.getStringExtra(Intent.EXTRA_TEXT);
+            } else if (type.startsWith("image")) {
+                someText = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                Log.e(TAG, "setIntentToJson someText: "+someText );
+            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+                someMultipleText = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            } else {
+                Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
+            }
             Log.d("PreferenceManager", "setIntentToJson: " + someText);
 
             JSONObject jsonObject = new JSONObject();
@@ -167,7 +182,7 @@ public class PreferenceManager {
         SharedPreferences prefs = getPreferences(context);
 
         String value = prefs.getString(key, DEFAULT_VALUE_STRING);
-        Log.d("PreferenceManager", "setString: "+value);
+        Log.d("PreferenceManager", "getString: "+value);
 
         return value;
     }
