@@ -79,7 +79,6 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
 
     @Override
     public void execute(String method, JSONObject paramObject) {
-
         if (method.equals(METHOD_CALLMETHOD)) {
             try {
                 JSONObject params = paramObject.getJSONObject("params");
@@ -87,6 +86,12 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
                 if (mServiceId.equals("test")) {
                     // App(Main)에서 저장한 데이터를 NexacroActivityExt에서 꺼내서 모듈로 리턴.
                     send(CODE_SUCCES,"모듈 연동 성공");
+
+                    String someText = PreferenceManager.getString( mActivity,"testKey");
+
+                    if(someText != null){
+                        send(CODE_SUCCES,someText);
+                    }
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);

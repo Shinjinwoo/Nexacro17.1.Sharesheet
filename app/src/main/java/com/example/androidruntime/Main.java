@@ -38,22 +38,16 @@ public class Main extends NexacroUpdatorActivity {
 
         Intent intent = getIntent();
 
-        String action = intent.getAction();
-        String type = intent.getType();
+        if(intent != null) {
 
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            String someText = intent.getStringExtra(Intent.EXTRA_TEXT);
-            Log.e(LOG_TAG, someText);
-            PreferenceManager.setString(getApplicationContext(),"testKey",someText);
-        }
+            PreferenceManager.setIntentToJson(getApplicationContext(),"testKey",intent);
 
-        String bootstrapURL = intent.getStringExtra("bootstrapURL");
-        String projectUrl = intent.getStringExtra("projectUrl");
-
-
-        if(bootstrapURL != null) {
-            setBootstrapURL(bootstrapURL);
-            setProjectURL(projectUrl);
+            String bootstrapURL = intent.getStringExtra("bootstrapURL");
+            String projectUrl = intent.getStringExtra("projectUrl");
+            if (bootstrapURL != null) {
+                setBootstrapURL(bootstrapURL);
+                setProjectURL(projectUrl);
+            }
         }
 
 

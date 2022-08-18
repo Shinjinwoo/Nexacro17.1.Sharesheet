@@ -24,9 +24,7 @@ import io.reactivex.rxjava3.observers.DisposableObserver;
 
 public class NexacroActivityExt extends NexacroActivity implements ShareSheetInterface {
 
-    Intent mIntent = null;
     String LOG_TAG = this.getClass().getSimpleName();
-    private ObservableOnSubscribe<String> mObservable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,11 +43,11 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
         String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
         Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
         Log.e(LOG_TAG, "onResume");
-
     }
 
     @Override
     protected void onPause() {
+        PreferenceManager.clear(getApplicationContext());
         super.onPause();
     }
 
@@ -80,7 +78,7 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
 
     @Override
     public ObservableOnSubscribe<String> getObserver(ObservableOnSubscribe<String> Observable) {
-        return this.mObservable = Observable;
+        return  Observable;
     }
 
     DisposableObserver<String> mObserver;

@@ -1,6 +1,9 @@
 package com.tobesoft.plugin.sharesheet;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -12,6 +15,25 @@ public class PreferenceManager {
     private static final int DEFAULT_VALUE_INT = -1;
     private static final long DEFAULT_VALUE_LONG = -1L;
     private static final float DEFAULT_VALUE_FLOAT = -1F;
+
+
+    /**
+     * Json 형태로 값 저장.
+     *
+     * @param context
+     * @param key
+     * @param intent
+     */
+    public static void setIntentToJson(Context context, String key, Intent intent) {
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            String someText = intent.getStringExtra(Intent.EXTRA_TEXT);
+            Log.d("PreferenceManager", "setIntentToJson: " + someText);
+
+            PreferenceManager.setString(context,key,someText);
+        }
+    }
 
     /**
      * String 값 저장
