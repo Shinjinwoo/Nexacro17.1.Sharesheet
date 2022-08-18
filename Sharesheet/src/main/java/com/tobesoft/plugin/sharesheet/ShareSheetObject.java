@@ -23,9 +23,17 @@ import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
 
 import org.json.JSONObject;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleObserver {
@@ -44,6 +52,9 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
 
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
+    private Observable<String> mObservable;
+    private DisposableObserver<String> mObserver;
+
     private DataBidingViewModel mViewModel;
     private ViewModelProvider.AndroidViewModelFactory mViewModelFactory;
 
@@ -52,18 +63,14 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
         super(objectId);
         mShareSheetInterface = (ShareSheetInterface) NexacroActivity.getInstance();
         mShareSheetInterface.setShareSheetObject(this);
+        mShareSheetInterface.setObserver(mObserver);
+
         mActivity = (Activity) NexacroActivity.getInstance();
-
-
-        Log.e(LOG_TAG,objectId);
     }
 
     @Override
     public void init(JSONObject jsonObject) {
-        if (mViewModelFactory == null) {
-            mViewModelFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(mActivity.getApplication());
-        }
-        mViewModel = new ViewModelProvider((ViewModelStoreOwner) mActivity,mViewModelFactory).get(DataBidingViewModel.class);
+
     }
 
     @Override
@@ -78,16 +85,15 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
                 JSONObject params = paramObject.getJSONObject("params");
                 mServiceId = params.getString("serviceid");
                 if (mServiceId.equals("test")) {
-
                     // App(Main)에서 저장한 데이터를 NexacroActivityExt에서 꺼내서 모듈로 리턴.
-                    send(CODE_SUCCES, mShareSheetInterface.getShareSheetData());
-
+                    send(CODE_SUCCES,"모듈 연동 성공");
                 }
-            }catch (Exception e) {
-                send(CODE_ERROR,e);
+            } catch (Exception e) {
+                send(CODE_ERROR, e);
             }
         }
     }
+
 
 
     public boolean send(int reason, Object retval) {

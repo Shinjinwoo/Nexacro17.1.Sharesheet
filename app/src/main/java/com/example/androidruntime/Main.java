@@ -15,18 +15,16 @@ import com.nexacro.NexacroResourceManager;
 import com.nexacro.NexacroUpdatorActivity;
 import com.tobesoft.plugin.sharesheet.PreferenceManager;
 
-public class Main extends NexacroUpdatorActivity implements LifecycleOwner{
+public class Main extends NexacroUpdatorActivity {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
-    private LifecycleRegistry mLifecycleRegistry;
+
 
     public Main() {
         super();
 
         setBootstrapURL("http://smart.tobesoft.co.kr/NexacroN/Sharesheet/start_android.json");
         setProjectURL("http://smart.tobesoft.co.kr/NexacroN/Sharesheet/");
-
-        mLifecycleRegistry = new LifecycleRegistry(this);
 
         this.setStartupClass(NexacroActivityExt.class);
     }
@@ -38,15 +36,15 @@ public class Main extends NexacroUpdatorActivity implements LifecycleOwner{
         NexacroResourceManager.createInstance(this);
         NexacroResourceManager.getInstance().setDirect(true);
 
-
         Intent intent = getIntent();
+
         String action = intent.getAction();
         String type = intent.getType();
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             String someText = intent.getStringExtra(Intent.EXTRA_TEXT);
             Log.e(LOG_TAG, someText);
-            PreferenceManager2.setString(getApplicationContext(),"testKey",someText);
+            PreferenceManager.setString(getApplicationContext(),"testKey",someText);
         }
 
         String bootstrapURL = intent.getStringExtra("bootstrapURL");
@@ -76,16 +74,10 @@ public class Main extends NexacroUpdatorActivity implements LifecycleOwner{
     @Override
     protected void onDestroy() {
 
-        mLifecycleRegistry.setCurrentState(Lifecycle.State.DESTROYED);
+
         super.onDestroy();
     }
 
 
-    @NonNull
-    @Override
-    public Lifecycle getLifecycle() {
-
-        return mLifecycleRegistry;
-    }
 }
 

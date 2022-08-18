@@ -2,8 +2,10 @@ package com.tobesoft.plugin.sharesheet;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 public class PreferenceManager {
+
     public static final String PREFERENCES_NAME = "rebuild_preference";
     private static final String DEFAULT_VALUE_STRING = "";
     private static final boolean DEFAULT_VALUE_BOOLEAN = false;
@@ -24,15 +26,15 @@ public class PreferenceManager {
         SharedPreferences prefs = getPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
 
+        Log.d("PreferenceManager", "setString: "+value);
+
         editor.putString(key, value);
         editor.commit();
 
     }
 
     public static SharedPreferences getPreferences(Context context) {
-
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-
     }
 
     /**
@@ -120,10 +122,11 @@ public class PreferenceManager {
     public static String getString(Context context, String key) {
 
         SharedPreferences prefs = getPreferences(context);
+
         String value = prefs.getString(key, DEFAULT_VALUE_STRING);
+        Log.d("PreferenceManager", "setString: "+value);
 
         return value;
-
     }
 
 
