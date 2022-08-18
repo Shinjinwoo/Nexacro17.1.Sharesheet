@@ -52,7 +52,6 @@ public class PreferenceManager {
 
         editor.putString(key, value);
         editor.commit();
-
     }
 
     public static SharedPreferences getPreferences(Context context) {
@@ -142,7 +141,6 @@ public class PreferenceManager {
      */
 
     public static String getString(Context context, String key) {
-
         SharedPreferences prefs = getPreferences(context);
 
         String value = prefs.getString(key, DEFAULT_VALUE_STRING);

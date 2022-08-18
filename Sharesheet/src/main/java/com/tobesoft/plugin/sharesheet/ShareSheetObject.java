@@ -52,18 +52,12 @@ public class ShareSheetObject extends NexacroPlugin implements DefaultLifecycleO
 
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
-    private Observable<String> mObservable;
-    private DisposableObserver<String> mObserver;
-
-    private DataBidingViewModel mViewModel;
-    private ViewModelProvider.AndroidViewModelFactory mViewModelFactory;
 
 
     public ShareSheetObject(String objectId) {
         super(objectId);
         mShareSheetInterface = (ShareSheetInterface) NexacroActivity.getInstance();
         mShareSheetInterface.setShareSheetObject(this);
-        mShareSheetInterface.setObserver(mObserver);
 
         mActivity = (Activity) NexacroActivity.getInstance();
     }

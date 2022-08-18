@@ -69,25 +69,6 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
         this.mShareSheetObject = obj;
     }
 
-
-    @Override
-    public String getShareSheetData() {
-
-        return "";
-    }
-
-    @Override
-    public ObservableOnSubscribe<String> getObserver(ObservableOnSubscribe<String> Observable) {
-        return  Observable;
-    }
-
-    DisposableObserver<String> mObserver;
-
-    @Override
-    public DisposableObserver<String> setObserver(DisposableObserver<String> observer) {
-        return this.mObserver = observer;
-    }
-
     /** Sharesheet 연동 코드 ****************************************************************************/
 
 
