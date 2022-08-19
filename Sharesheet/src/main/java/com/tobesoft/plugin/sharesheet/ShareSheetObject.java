@@ -76,6 +76,7 @@ public class ShareSheetObject extends NexacroPlugin {
 
     @Override
     public void release(JSONObject jsonObject) {
+
     }
 
     @Override
