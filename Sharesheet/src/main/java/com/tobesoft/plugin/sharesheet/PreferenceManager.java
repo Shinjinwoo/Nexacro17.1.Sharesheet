@@ -2,9 +2,11 @@ package com.tobesoft.plugin.sharesheet;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
@@ -36,42 +38,46 @@ public class PreferenceManager {
      * @param key
      * @param intent
      */
+    @SuppressLint("LongLogTag")
     public static void setIntentToJson(Context context, String key, Intent intent) {
         SharedPreferences prefs = getPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
 
         String action = intent.getAction();
         String type = intent.getType();
+        String someValue= "";
 
-        if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            String someText = "";
-            ArrayList<Parcelable> someMultipleText;
+        ArrayList<Uri> someMultipleImageUris;
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
-                someText = intent.getStringExtra(Intent.EXTRA_TEXT);
-            } else if (type.startsWith("image")) {
-                someText = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                Log.e(TAG, "setIntentToJson someText: "+someText );
-            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-                someMultipleText = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            } else {
-                Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
+                someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
+            } else if (type.startsWith("image/")) {
+                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                Log.e(TAG, "setIntentToJson someText: " + someValue);
             }
-            Log.d("PreferenceManager", "setIntentToJson: " + someText);
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
 
-            JSONObject jsonObject = new JSONObject();
-
-            try {
-                jsonObject.put("action",action);
-                jsonObject.put("type",type);
-                jsonObject.put("value",someText);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            editor.putString(key, String.valueOf(jsonObject));
-            editor.commit();
+            someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
+            Log.e(TAG, someValue);
+        } else {
+            Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
         }
+        Log.d("PreferenceManager", "setIntentToJson: " + someValue);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("action", action);
+            jsonObject.put("type", type);
+            jsonObject.put("value", someValue);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        editor.putString(key, String.valueOf(jsonObject));
+        editor.commit();
     }
+
 
     /**
      * String 값 저장
@@ -86,7 +92,7 @@ public class PreferenceManager {
         SharedPreferences prefs = getPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
 
-        Log.d("PreferenceManager", "setString: "+value);
+        Log.d("PreferenceManager", "setString: " + value);
 
         editor.putString(key, value);
         editor.commit();
@@ -182,7 +188,7 @@ public class PreferenceManager {
         SharedPreferences prefs = getPreferences(context);
 
         String value = prefs.getString(key, DEFAULT_VALUE_STRING);
-        Log.d("PreferenceManager", "getString: "+value);
+        Log.d("PreferenceManager", "getString: " + value);
 
         return value;
     }

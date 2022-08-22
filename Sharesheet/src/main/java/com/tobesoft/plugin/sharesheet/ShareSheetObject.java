@@ -5,36 +5,22 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.text.Layout;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
-
-import com.nexacro.Nexacro;
 import com.nexacro.NexacroActivity;
 import com.nexacro.plugin.NexacroPlugin;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.observers.DisposableObserver;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 public class ShareSheetObject extends NexacroPlugin {
@@ -100,12 +86,13 @@ public class ShareSheetObject extends NexacroPlugin {
             String type = jsonObject.getString("type");
             String value = jsonObject.getString("value");
 
+
             if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
                 handleSendText(value);
             } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
                 handleSendImage(value);
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
-
+                handleSendMultipleImages(value);
             } else {
                 send(CODE_ERROR, jsonObject);
             }
@@ -115,7 +102,6 @@ public class ShareSheetObject extends NexacroPlugin {
             e.printStackTrace();
         }
     }
-
 
 
     public boolean send(int reason, Object retval) {
@@ -173,7 +159,7 @@ public class ShareSheetObject extends NexacroPlugin {
                 Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
                 String sharedImage = imageUtil.bitmapToBase64(resizeBitmap);
 
-                Log.d(LOG_TAG,sharedImage);
+                Log.d(LOG_TAG, sharedImage);
 
                 send("singleImage", CODE_SUCCES, sharedImage);
 
@@ -183,18 +169,30 @@ public class ShareSheetObject extends NexacroPlugin {
         }
     }
 
-    public void handleSendMultipleImages(Intent intent) {
-        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+    public void handleSendMultipleImages(String value) {
 
-        Log.e(LOG_TAG, String.valueOf(imageUris));
-        if (imageUris != null) {
+        ArrayList<Uri> someMultipleImageUris = new ArrayList<>();
+
+        String optimizationString = value.replace("[", "");
+        String finalOptimizationString = optimizationString.replace("]", "");
+
+        List<String> someMultipleImageUrisToString = new ArrayList<String>(Arrays.asList(finalOptimizationString.split(",")));
+        Log.d(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
+
+        for (int i = 0; i < someMultipleImageUrisToString.size(); i++) {
+            someMultipleImageUris.add(Uri.parse(someMultipleImageUrisToString.get(i)));
+        }
+
+        Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
+
+        if (someMultipleImageUris != null) {
             try {
                 ImageUtil imageUtil = ImageUtil.getInstance();
                 ArrayList<Bitmap> bitmaps = new ArrayList<>();
                 ArrayList<String> sharedImages = new ArrayList<>();
 
-                for (int i = 0; i == imageUris.size(); i++) {
-                    bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), imageUris.get(i)));
+                for (int i = 0; i == someMultipleImageUris.size(); i++) {
+                    bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), someMultipleImageUris.get(i)));
                     Log.e(LOG_TAG, bitmaps.toString());
                     sharedImages.add(i, imageUtil.bitmapToBase64(bitmaps.get(i)));
                 }
