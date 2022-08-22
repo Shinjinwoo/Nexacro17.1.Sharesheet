@@ -29,7 +29,6 @@ public class Main extends NexacroUpdatorActivity {
         this.setStartupClass(NexacroActivityExt.class);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
