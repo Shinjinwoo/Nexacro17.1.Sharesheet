@@ -48,8 +48,6 @@ public class Main extends NexacroUpdatorActivity {
                 setProjectURL(projectUrl);
             }
         }
-
-
         super.onCreate(savedInstanceState);
     }
 

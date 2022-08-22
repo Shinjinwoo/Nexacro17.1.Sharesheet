@@ -44,12 +44,15 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     protected void onResume() {
         super.onResume();
         String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
-        if (!sendText.isEmpty()) {
+        if (!sendText.equals("")) {
             try {
                 JSONObject jsonObject = new JSONObject(sendText);
-                mShareSheetObject.execute(jsonObject);
-                Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
-                Log.e(LOG_TAG, "onResume");
+
+                if(mShareSheetObject != null ) {
+                    mShareSheetObject.execute(jsonObject);
+                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+                    Log.e(LOG_TAG, "onResume");
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
