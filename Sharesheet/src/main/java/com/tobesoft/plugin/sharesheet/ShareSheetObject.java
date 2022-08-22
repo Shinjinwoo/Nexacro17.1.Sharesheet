@@ -3,7 +3,9 @@ package com.tobesoft.plugin.sharesheet;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -176,7 +178,7 @@ public class ShareSheetObject extends NexacroPlugin {
         String optimizationString = value.replace("[", "");
         String finalOptimizationString = optimizationString.replace("]", "");
 
-        List<String> someMultipleImageUrisToString = new ArrayList<String>(Arrays.asList(finalOptimizationString.split(",")));
+        List<String> someMultipleImageUrisToString = new ArrayList<>(Arrays.asList(finalOptimizationString.split(",")));
         Log.d(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
 
         for (int i = 0; i < someMultipleImageUrisToString.size(); i++) {
@@ -185,25 +187,34 @@ public class ShareSheetObject extends NexacroPlugin {
 
         Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
 
-        if (someMultipleImageUris != null) {
-            try {
-                ImageUtil imageUtil = ImageUtil.getInstance();
-                ArrayList<Bitmap> bitmaps = new ArrayList<>();
-                ArrayList<String> sharedImages = new ArrayList<>();
+        try {
+            ImageUtil imageUtil = ImageUtil.getInstance();
+            Bitmap bitmap;
+            //ArrayList<Bitmap> bitmaps = new ArrayList<>();
+            ArrayList<String> sharedImages = new ArrayList<>();
 
-                for (int i = 0; i == someMultipleImageUris.size(); i++) {
-                    bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), someMultipleImageUris.get(i)));
-                    Log.e(LOG_TAG, bitmaps.toString());
-                    sharedImages.add(i, imageUtil.bitmapToBase64(bitmaps.get(i)));
+            for (int i = 0; i < someMultipleImageUris.size(); i++) {
+                //bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), someMultipleImageUris.get(i)));
+
+                //bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), someMultipleImageUris.get(i));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(mActivity.getContentResolver(),someMultipleImageUris.get(i)));
+
+                    Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
+
+                    String sharedImage = imageUtil.bitmapToBase64(resizeBitmap);
+                    sharedImages.add(sharedImage);
+
+                    Log.e(LOG_TAG, sharedImages.toString());
                 }
-
-                Log.e(LOG_TAG, String.valueOf(bitmaps));
-
-                send("multipleImages", CODE_SUCCES, sharedImages);
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+            Log.e(LOG_TAG, String.valueOf(sharedImages));
+
+            send("multipleImages", CODE_SUCCES, sharedImages);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
