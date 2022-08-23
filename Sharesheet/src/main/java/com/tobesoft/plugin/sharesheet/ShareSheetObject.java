@@ -43,16 +43,20 @@ public class ShareSheetObject extends NexacroPlugin {
     public static final int CODE_ERROR = -1;
     public String mServiceId = "";
 
+    public int mResizeScale;
+
     private static ShareSheetObject mShareSheetObject;
 
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
+    private SetCallbackDataSetting mSetCallbackDataSetting = null;
 
 
     public ShareSheetObject(String objectId) {
         super(objectId);
         mShareSheetInterface = (ShareSheetInterface) NexacroActivity.getInstance();
         mShareSheetInterface.setShareSheetObject(this);
+        mSetCallbackDataSetting = new SetCallbackDataSetting();
 
         mActivity = (Activity) NexacroActivity.getInstance();
     }
@@ -79,6 +83,9 @@ public class ShareSheetObject extends NexacroPlugin {
                 mServiceId = params.getString("serviceid");
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
+                } else if (mServiceId.equals("init")) {
+                    mResizeScale = params.getInt("resizeScale");
+                    mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
@@ -91,7 +98,6 @@ public class ShareSheetObject extends NexacroPlugin {
             String action = jsonObject.getString("action");
             String type = jsonObject.getString("type");
             String value = jsonObject.getString("value");
-
 
             if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
                 handleSendText(value);
@@ -178,7 +184,7 @@ public class ShareSheetObject extends NexacroPlugin {
         // Intent-> Uri -> String -> Uri -> Bitmap -> String
 
         ArrayList<Uri> someMultipleImageUris = new ArrayList<>();
-        String optimizationString = value.trim().replace("[", "").replace("]","").replace(" ","");
+        String optimizationString = value.trim().replace("[", "").replace("]", "").replace(" ", "");
         List<String> someMultipleImageUrisToString = new ArrayList<>(Arrays.asList(optimizationString.split(",")));
         Log.e(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
 
@@ -189,39 +195,37 @@ public class ShareSheetObject extends NexacroPlugin {
 
         Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
         try {
-            for (int i = 0; i < someMultipleImageUris.size(); i++ ) {
+            for (int i = 0; i < someMultipleImageUris.size(); i++) {
                 InputStream inputStream = mActivity.getContentResolver().openInputStream(someMultipleImageUris.get(i));
                 Bitmap bitmaps = BitmapFactory.decodeStream(inputStream);
-                jsonObject.put("imageItem"+i,bitmapToBase64(bitmaps));
+                jsonObject.put("imageItem" + i, bitmapToBase64(bitmaps));
             }
-
-
 
             Log.e(LOG_TAG, String.valueOf(jsonObject));
             send("multipleImages", CODE_SUCCES, jsonObject);
+
         } catch (IOException | JSONException e) {
-            send(CODE_ERROR,e);
+            send(CODE_ERROR, e);
             e.printStackTrace();
         }
     }
 
 
-    private String bitmapToBase64(Bitmap bitmap){
+    private String bitmapToBase64(Bitmap bitmap) {
 
         ImageUtil imageUtil = ImageUtil.getInstance();
-        Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
+        Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, mSetCallbackDataSetting.gerResizeBitmap());
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        resizeBitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
+        resizeBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         try {
             byteArrayOutputStream.flush();
             byteArrayOutputStream.close();
         } catch (IOException e) {
-            send(CODE_ERROR,e);
+            send(CODE_ERROR, e);
             e.printStackTrace();
         }
-
-        return Base64.encodeToString(byteArray,Base64.NO_WRAP);
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP);
     }
 }
