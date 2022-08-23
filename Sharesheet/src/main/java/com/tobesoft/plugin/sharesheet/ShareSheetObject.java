@@ -159,12 +159,10 @@ public class ShareSheetObject extends NexacroPlugin {
         Uri imageUri = Uri.parse(value);
         if (imageUri != null) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), imageUri);
-                ImageUtil imageUtil = ImageUtil.getInstance();
+                InputStream inputStream = mActivity.getContentResolver().openInputStream(imageUri);
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
-                String sharedImage = imageUtil.bitmapToBase64(resizeBitmap);
-
+                String sharedImage = bitmapToBase64(bitmap);
                 Log.d(LOG_TAG, sharedImage);
 
                 send("singleImage", CODE_SUCCES, sharedImage);
@@ -191,17 +189,16 @@ public class ShareSheetObject extends NexacroPlugin {
 
         Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
         try {
-            ArrayList<String> sharedImages = new ArrayList<>();
-
             for (int i = 0; i < someMultipleImageUris.size(); i++ ) {
                 InputStream inputStream = mActivity.getContentResolver().openInputStream(someMultipleImageUris.get(i));
                 Bitmap bitmaps = BitmapFactory.decodeStream(inputStream);
                 jsonObject.put("imageItem"+i,bitmapToBase64(bitmaps));
             }
 
+
+
             Log.e(LOG_TAG, String.valueOf(jsonObject));
             send("multipleImages", CODE_SUCCES, jsonObject);
-
         } catch (IOException | JSONException e) {
             send(CODE_ERROR,e);
             e.printStackTrace();
@@ -210,10 +207,21 @@ public class ShareSheetObject extends NexacroPlugin {
 
 
     private String bitmapToBase64(Bitmap bitmap){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
 
-        return Base64.encodeToString(byteArray,Base64.DEFAULT);
+        ImageUtil imageUtil = ImageUtil.getInstance();
+        Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        resizeBitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        try {
+            byteArrayOutputStream.flush();
+            byteArrayOutputStream.close();
+        } catch (IOException e) {
+            send(CODE_ERROR,e);
+            e.printStackTrace();
+        }
+
+        return Base64.encodeToString(byteArray,Base64.NO_WRAP);
     }
 }
