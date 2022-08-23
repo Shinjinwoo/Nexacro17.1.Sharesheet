@@ -3,10 +3,12 @@ package com.tobesoft.plugin.sharesheet;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 
 import com.nexacro.NexacroActivity;
@@ -18,7 +20,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -173,48 +177,43 @@ public class ShareSheetObject extends NexacroPlugin {
 
     public void handleSendMultipleImages(String value) {
 
+        // Intent-> Uri -> String -> Uri -> Bitmap -> String
+
         ArrayList<Uri> someMultipleImageUris = new ArrayList<>();
+        String optimizationString = value.trim().replace("[", "").replace("]","").replace(" ","");
+        List<String> someMultipleImageUrisToString = new ArrayList<>(Arrays.asList(optimizationString.split(",")));
+        Log.e(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
 
-        String optimizationString = value.replace("[", "");
-        String finalOptimizationString = optimizationString.replace("]", "");
-
-        List<String> someMultipleImageUrisToString = new ArrayList<>(Arrays.asList(finalOptimizationString.split(",")));
-        Log.d(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
-
+        JSONObject jsonObject = new JSONObject();
         for (int i = 0; i < someMultipleImageUrisToString.size(); i++) {
             someMultipleImageUris.add(Uri.parse(someMultipleImageUrisToString.get(i)));
         }
 
         Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
-
         try {
-            ImageUtil imageUtil = ImageUtil.getInstance();
-            Bitmap bitmap;
-            //ArrayList<Bitmap> bitmaps = new ArrayList<>();
             ArrayList<String> sharedImages = new ArrayList<>();
 
-            for (int i = 0; i < someMultipleImageUris.size(); i++) {
-                //bitmaps.add(i, MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), someMultipleImageUris.get(i)));
-
-                //bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), someMultipleImageUris.get(i));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(mActivity.getContentResolver(),someMultipleImageUris.get(i)));
-
-                    Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, 400);
-
-                    String sharedImage = imageUtil.bitmapToBase64(resizeBitmap);
-                    sharedImages.add(sharedImage);
-
-                    Log.e(LOG_TAG, sharedImages.toString());
-                }
+            for (int i = 0; i < someMultipleImageUris.size(); i++ ) {
+                InputStream inputStream = mActivity.getContentResolver().openInputStream(someMultipleImageUris.get(i));
+                Bitmap bitmaps = BitmapFactory.decodeStream(inputStream);
+                jsonObject.put("imageItem"+i,bitmapToBase64(bitmaps));
             }
 
-            Log.e(LOG_TAG, String.valueOf(sharedImages));
+            Log.e(LOG_TAG, String.valueOf(jsonObject));
+            send("multipleImages", CODE_SUCCES, jsonObject);
 
-            send("multipleImages", CODE_SUCCES, sharedImages);
-
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
+            send(CODE_ERROR,e);
             e.printStackTrace();
         }
+    }
+
+
+    private String bitmapToBase64(Bitmap bitmap){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        return Base64.encodeToString(byteArray,Base64.DEFAULT);
     }
 }
