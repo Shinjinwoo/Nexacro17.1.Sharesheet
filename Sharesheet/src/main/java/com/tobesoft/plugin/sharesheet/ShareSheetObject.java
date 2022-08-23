@@ -45,8 +45,6 @@ public class ShareSheetObject extends NexacroPlugin {
 
     public int mResizeScale;
 
-    private static ShareSheetObject mShareSheetObject;
-
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
     private SetCallbackDataSetting mSetCallbackDataSetting = null;
@@ -59,10 +57,6 @@ public class ShareSheetObject extends NexacroPlugin {
         mSetCallbackDataSetting = new SetCallbackDataSetting();
 
         mActivity = (Activity) NexacroActivity.getInstance();
-    }
-
-    public static ShareSheetObject getInstance() {
-        return mShareSheetObject;
     }
 
     @Override
@@ -84,8 +78,12 @@ public class ShareSheetObject extends NexacroPlugin {
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
                 } else if (mServiceId.equals("init")) {
-                    mResizeScale = params.getInt("resizeScale");
+
+                    JSONObject param = params.getJSONObject("param");
+                    mResizeScale = param.getInt("resizeScale");
                     mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
+
+                    send(CODE_SUCCES,"Set ImageScale : " + mSetCallbackDataSetting.gerResizeBitmap());
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
