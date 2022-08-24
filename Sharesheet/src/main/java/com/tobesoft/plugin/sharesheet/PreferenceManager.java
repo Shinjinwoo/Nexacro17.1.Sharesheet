@@ -28,7 +28,7 @@ public class PreferenceManager {
     public static final int CODE_SUCCES = 0;
     public static final int CODE_ERROR = -1;
 
-    private static ShareSheetObject mShareSheetObject;
+    private static ShareSheetObject mShareSheetObject = ShareSheetObject.getInstance();
 
 
     /**
@@ -76,6 +76,22 @@ public class PreferenceManager {
 
         editor.putString(key, String.valueOf(jsonObject));
         editor.commit();
+    }
+
+
+    public static void execute(String sendText) {
+        try {
+            JSONObject jsonObject = new JSONObject(sendText);
+            String getAction = jsonObject.getString("action");
+            if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
+                if (mShareSheetObject != null) {
+                    mShareSheetObject.execute(jsonObject);
+                    Log.e(TAG, "::::::::::::::::::::::::::" + sendText);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageDecoder;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
@@ -16,7 +13,6 @@ import com.nexacro.plugin.NexacroPlugin;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -48,6 +43,7 @@ public class ShareSheetObject extends NexacroPlugin {
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
     private SetCallbackDataSetting mSetCallbackDataSetting = null;
+    private static ShareSheetObject mShareSheetObject;
 
 
     public ShareSheetObject(String objectId) {
@@ -57,6 +53,10 @@ public class ShareSheetObject extends NexacroPlugin {
         mSetCallbackDataSetting = new SetCallbackDataSetting();
 
         mActivity = (Activity) NexacroActivity.getInstance();
+    }
+
+    public static ShareSheetObject getInstance() {
+        return mShareSheetObject;
     }
 
     @Override

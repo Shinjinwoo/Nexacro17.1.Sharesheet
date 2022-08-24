@@ -2,7 +2,6 @@ package com.example.androidruntime;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -14,14 +13,11 @@ import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
-
 
 public class NexacroActivityExt extends NexacroActivity implements ShareSheetInterface {
 
     String LOG_TAG = this.getClass().getSimpleName();
+    private Boolean mIsSharesSheetObjectNotNull = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,30 +33,31 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     @Override
     protected void onResume() {
         super.onResume();
-//        String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
-//        if (!sendText.equals("")) {
-//            try {
-//                JSONObject jsonObject = new JSONObject(sendText);
-//
-//                if( mShareSheetObject != null ) {
-//                    mShareSheetObject.execute(jsonObject);
-//                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
-//                    Log.e(LOG_TAG, "onResume");
-//                } else {
-//                    Handler handler = new Handler(Looper.getMainLooper());
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            mShareSheetObject.execute(jsonObject);
-//                        }
-//                    },3000);
-//                    Log.e(LOG_TAG,"mShareSheetObject is null");
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
+
+        String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
+
+        boolean handler = new Handler(getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        },1000);
+
+        try {
+            JSONObject jsonObject = new JSONObject(sendText);
+            String getAction = jsonObject.getString("action");
+            if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
+                if (mShareSheetObject != null) {
+                    mShareSheetObject.execute(jsonObject);
+                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+                    Log.e(LOG_TAG, "onResume");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
+
 
     @Override
     protected void onPause() {
@@ -84,32 +81,7 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     @Override
     public void setShareSheetObject(ShareSheetObject obj) {
         this.mShareSheetObject = obj;
-        Observable<ShareSheetObject> source = Observable.create(emitter -> {
-            emitter.onNext(mShareSheetObject);
-            emitter.onComplete();
-        });
-
-        source.subscribe(executeShareSheetObject(mShareSheetObject));
     }
-
-    public @NonNull Observer<? super ShareSheetObject> executeShareSheetObject(ShareSheetObject shareSheetObject) {
-        String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
-        if (!sendText.equals("")) {
-            try {
-                JSONObject jsonObject = new JSONObject(sendText);
-
-                if( shareSheetObject != null ) {
-                    shareSheetObject.execute(jsonObject);
-                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
-                    Log.e(LOG_TAG, "onResume");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
 
     /** Sharesheet 연동 코드 ****************************************************************************/
 
