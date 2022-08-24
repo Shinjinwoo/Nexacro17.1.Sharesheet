@@ -33,29 +33,7 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     @Override
     protected void onResume() {
         super.onResume();
-
-        String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
-
-        boolean handler = new Handler(getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        },1000);
-
-        try {
-            JSONObject jsonObject = new JSONObject(sendText);
-            String getAction = jsonObject.getString("action");
-            if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
-                if (mShareSheetObject != null) {
-                    mShareSheetObject.execute(jsonObject);
-                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
-                    Log.e(LOG_TAG, "onResume");
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        execute();
     }
 
 
@@ -81,6 +59,35 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     @Override
     public void setShareSheetObject(ShareSheetObject obj) {
         this.mShareSheetObject = obj;
+    }
+
+
+    public void execute() {
+        String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
+
+        try {
+            JSONObject jsonObject = new JSONObject(sendText);
+            String getAction = jsonObject.getString("action");
+            if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
+                if (mShareSheetObject != null) {
+                    mShareSheetObject.execute(jsonObject);
+                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+                    Log.e(LOG_TAG, "onResume");
+                } else {
+                    //TODO 아 비동기로 처리도 왜 안되냐...
+
+                    Handler handler = new Handler(getMainLooper());
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            execute();
+                        }
+                    },1000);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /** Sharesheet 연동 코드 ****************************************************************************/
