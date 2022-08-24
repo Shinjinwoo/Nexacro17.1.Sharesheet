@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
 
@@ -77,17 +78,44 @@ public class ShareSheetObject extends NexacroPlugin {
                 mServiceId = params.getString("serviceid");
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
-                } else if (mServiceId.equals("init")) {
-
-                    JSONObject param = params.getJSONObject("param");
-                    mResizeScale = param.getInt("resizeScale");
-                    mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
-
-                    send(CODE_SUCCES,"Set ImageScale : " + mSetCallbackDataSetting.gerResizeBitmap());
                 }
+//                else if (mServiceId.equals("init")) {
+//
+//                    JSONObject param = params.getJSONObject("param");
+//                    mResizeScale = param.getInt("resizeScale");
+//                    mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
+//
+//                    send(CODE_SUCCES,"Set ImageScale : " + mSetCallbackDataSetting.gerResizeBitmap());
+//                }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
             }
+        } else {
+            String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "testKey");
+            try {
+                JSONObject jsonObject = new JSONObject(sendText);
+                String getAction = jsonObject.getString("action");
+                if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
+                    execute(jsonObject);
+                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void execute() {
+        String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "testKey");
+        try {
+            JSONObject jsonObject = new JSONObject(sendText);
+            String getAction = jsonObject.getString("action");
+            if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
+                execute(jsonObject);
+                Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

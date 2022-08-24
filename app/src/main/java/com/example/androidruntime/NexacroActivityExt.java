@@ -17,7 +17,6 @@ import org.json.JSONObject;
 public class NexacroActivityExt extends NexacroActivity implements ShareSheetInterface {
 
     String LOG_TAG = this.getClass().getSimpleName();
-    private Boolean mIsSharesSheetObjectNotNull = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,7 +32,10 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     @Override
     protected void onResume() {
         super.onResume();
-        execute();
+        if ( mShareSheetObject != null ) {
+            mShareSheetObject.execute();
+        }
+
     }
 
 
@@ -64,7 +66,6 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
 
     public void execute() {
         String sendText = PreferenceManager.getString(getApplicationContext(), "testKey");
-
         try {
             JSONObject jsonObject = new JSONObject(sendText);
             String getAction = jsonObject.getString("action");
