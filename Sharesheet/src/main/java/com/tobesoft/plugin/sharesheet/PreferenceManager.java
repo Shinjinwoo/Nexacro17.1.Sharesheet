@@ -73,6 +73,9 @@ public class PreferenceManager {
                 someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
                 someValue = handleSendImage(someValue);
                 Log.e(TAG, "setIntentToJson someText: " + someValue);
+            } else if (type.startsWith("video")) {
+                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                Log.e(TAG, "setIntentToJson someText: " + someValue);
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
