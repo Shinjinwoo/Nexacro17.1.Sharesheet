@@ -4,7 +4,12 @@
     package="com.nexacro171.Sharesheet"
     android:installLocation="auto"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.0"
+
+    android:sharedUserId="com.myGroup1"
+
+
+    >
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -25,6 +30,10 @@
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.android.permission.READ_PHONE_NUMBERS" />
+
 
     <application
         android:allowBackup="true"

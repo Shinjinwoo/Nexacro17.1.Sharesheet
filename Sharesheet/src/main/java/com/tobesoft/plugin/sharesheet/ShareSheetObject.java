@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
@@ -79,14 +80,15 @@ public class ShareSheetObject extends NexacroPlugin {
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
                 }
-//                else if (mServiceId.equals("init")) {
-//
-//                    JSONObject param = params.getJSONObject("param");
-//                    mResizeScale = param.getInt("resizeScale");
-//                    mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
-//
-//                    send(CODE_SUCCES,"Set ImageScale : " + mSetCallbackDataSetting.gerResizeBitmap());
-//                }
+                else if (mServiceId.equals("init")) {
+
+                    JSONObject param = params.getJSONObject("param");
+                    mResizeScale = param.getInt("resizeScale");
+                    mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
+
+                    execute();
+                    send(CODE_SUCCES,"Set ImageScale : " + mSetCallbackDataSetting.gerResizeBitmap());
+                }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
             }
@@ -191,8 +193,9 @@ public class ShareSheetObject extends NexacroPlugin {
         Uri imageUri = Uri.parse(value);
         if (imageUri != null) {
             try {
-                InputStream inputStream = mActivity.getContentResolver().openInputStream(imageUri);
+                InputStream inputStream = mActivity.getApplicationContext().getContentResolver().openInputStream(imageUri);
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
 
                 String sharedImage = bitmapToBase64(bitmap);
                 Log.d(LOG_TAG, sharedImage);

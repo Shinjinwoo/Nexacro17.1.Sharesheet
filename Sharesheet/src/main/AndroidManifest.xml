@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.Test">
+    package="com.example.Test"
+    android:sharedUserId="com.myGroup1"
+    >
 
-    <application>
-        <service
-            android:name="com.example.sharesheet.MyIntentService"
-            android:exported="false" />
-    </application>
 
 </manifest>
