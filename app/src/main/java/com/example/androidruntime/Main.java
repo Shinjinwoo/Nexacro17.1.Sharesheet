@@ -39,14 +39,16 @@ public class Main extends NexacroUpdatorActivity {
 
         if(intent != null) {
 
-            PreferenceManager.setIntentToJson(getApplicationContext(),"testKey",intent);
+            PreferenceManager.setIntentToJson(getApplicationContext(),"testKey",intent,300);
 
             String bootstrapURL = intent.getStringExtra("bootstrapURL");
             String projectUrl = intent.getStringExtra("projectUrl");
+
             if (bootstrapURL != null) {
                 setBootstrapURL(bootstrapURL);
                 setProjectURL(projectUrl);
             }
+
         }
         super.onCreate(savedInstanceState);
     }
@@ -59,16 +61,11 @@ public class Main extends NexacroUpdatorActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     @Override
     protected void onDestroy() {
-
-
         super.onDestroy();
     }
-
-
 }
 

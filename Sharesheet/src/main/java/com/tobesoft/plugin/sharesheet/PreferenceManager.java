@@ -6,16 +6,25 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.util.Base64;
 import android.util.Log;
 
+import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PreferenceManager {
 
@@ -28,6 +37,12 @@ public class PreferenceManager {
     public static final int CODE_SUCCES = 0;
     public static final int CODE_ERROR = -1;
 
+    public static final String LOG_TAG = "PreferenceManager";
+
+
+    private static Context mContext = null;
+    private static int mResizeScale = 0;
+
     private static ShareSheetObject mShareSheetObject = ShareSheetObject.getInstance();
 
 
@@ -39,26 +54,31 @@ public class PreferenceManager {
      * @param intent
      */
     @SuppressLint("LongLogTag")
-    public static void setIntentToJson(Context context, String key, Intent intent) {
+    public static void setIntentToJson(Context context, String key, Intent intent, int resizeScale) {
+
+        mContext = context;
+        mResizeScale = resizeScale;
+
         SharedPreferences prefs = getPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
 
         String action = intent.getAction();
         String type = intent.getType();
-        String someValue= "";
-
-        ArrayList<Uri> someMultipleImageUris;
+        String someValue = "";
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
                 someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
             } else if (type.startsWith("image/")) {
                 someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                someValue = handleSendImage(someValue);
                 Log.e(TAG, "setIntentToJson someText: " + someValue);
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-
             someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
+            JSONObject jsonObject = handleSendMultipleImages(someValue);
+            someValue = String.valueOf(jsonObject);
+
             Log.e(TAG, someValue);
         } else {
             Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
@@ -78,20 +98,68 @@ public class PreferenceManager {
         editor.commit();
     }
 
+    public static String handleSendImage(String value) {
+        Uri imageUri = Uri.parse(value);
+        if (imageUri != null) {
+            try {
+                InputStream inputStream = mContext.getApplicationContext().getContentResolver().openInputStream(imageUri);
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-    public static void execute(String sendText) {
-        try {
-            JSONObject jsonObject = new JSONObject(sendText);
-            String getAction = jsonObject.getString("action");
-            if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
-                if (mShareSheetObject != null) {
-                    mShareSheetObject.execute(jsonObject);
-                    Log.e(TAG, "::::::::::::::::::::::::::" + sendText);
-                }
+                String sharedImage = bitmapToBase64(bitmap);
+                return sharedImage;
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
+        }
+        return "";
+    }
+
+    public static JSONObject handleSendMultipleImages(String value) {
+
+        ArrayList<Uri> someMultipleImageUris = new ArrayList<>();
+        String optimizationString = value.trim().replace("[", "").replace("]", "").replace(" ", "");
+        List<String> someMultipleImageUrisToString = new ArrayList<>(Arrays.asList(optimizationString.split(",")));
+        Log.e(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
+
+        JSONObject jsonObject = new JSONObject();
+        for (int i = 0; i < someMultipleImageUrisToString.size(); i++) {
+            someMultipleImageUris.add(Uri.parse(someMultipleImageUrisToString.get(i)));
+        }
+
+        Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
+        try {
+            for (int i = 0; i < someMultipleImageUris.size(); i++) {
+                InputStream inputStream = mContext.getContentResolver().openInputStream(someMultipleImageUris.get(i));
+                Bitmap bitmaps = BitmapFactory.decodeStream(inputStream);
+                jsonObject.put("imageItem" + i, bitmapToBase64(bitmaps));
+            }
+
+            Log.e(LOG_TAG, String.valueOf(jsonObject));
+            return jsonObject;
+
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    private static String bitmapToBase64(Bitmap bitmap) {
+
+        ImageUtil imageUtil = ImageUtil.getInstance();
+        Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, mResizeScale);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        resizeBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        try {
+            byteArrayOutputStream.flush();
+            byteArrayOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP);
     }
 
 

@@ -44,7 +44,6 @@ public class ShareSheetObject extends NexacroPlugin {
 
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
-    private SetCallbackDataSetting mSetCallbackDataSetting = null;
     private static ShareSheetObject mShareSheetObject;
 
 
@@ -52,7 +51,6 @@ public class ShareSheetObject extends NexacroPlugin {
         super(objectId);
         mShareSheetInterface = (ShareSheetInterface) NexacroActivity.getInstance();
         mShareSheetInterface.setShareSheetObject(this);
-        mSetCallbackDataSetting = new SetCallbackDataSetting();
 
         mActivity = (Activity) NexacroActivity.getInstance();
     }
@@ -79,30 +77,13 @@ public class ShareSheetObject extends NexacroPlugin {
                 mServiceId = params.getString("serviceid");
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
-                }
-                else if (mServiceId.equals("init")) {
-
+                } else if (mServiceId.equals("init")) {
                     JSONObject param = params.getJSONObject("param");
-                    mResizeScale = param.getInt("resizeScale");
-                    mSetCallbackDataSetting.setResizeBitmap(mResizeScale);
 
                     execute();
-                    send(CODE_SUCCES,"Set ImageScale : " + mSetCallbackDataSetting.gerResizeBitmap());
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
-            }
-        } else {
-            String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "testKey");
-            try {
-                JSONObject jsonObject = new JSONObject(sendText);
-                String getAction = jsonObject.getString("action");
-                if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
-                    execute(jsonObject);
-                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -119,6 +100,8 @@ public class ShareSheetObject extends NexacroPlugin {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        if (!sendText.equals(""))
+            send(CODE_SUCCES, sendText);
     }
 
     public void execute(JSONObject jsonObject) {
@@ -128,16 +111,17 @@ public class ShareSheetObject extends NexacroPlugin {
             String value = jsonObject.getString("value");
 
             if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-                handleSendText(value);
+                send("text/plain", CODE_SUCCES, value);
             } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
-                handleSendImage(value);
+                send("singleImage", CODE_SUCCES, value);
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
-                handleSendMultipleImages(value);
+                send("multipleImages", CODE_SUCCES, new JSONObject(value));
             } else {
                 send(CODE_ERROR, jsonObject);
             }
 
         } catch (JSONException e) {
+            Log.e(LOG_TAG, String.valueOf(e));
             send(CODE_ERROR, e);
             e.printStackTrace();
         }
@@ -182,79 +166,4 @@ public class ShareSheetObject extends NexacroPlugin {
         return false;
     }
 
-
-    private void handleSendText(String value) {
-        if (value != null) {
-            send("text/plain", CODE_SUCCES, value);
-        }
-    }
-
-    public void handleSendImage(String value) {
-        Uri imageUri = Uri.parse(value);
-        if (imageUri != null) {
-            try {
-                InputStream inputStream = mActivity.getApplicationContext().getContentResolver().openInputStream(imageUri);
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-
-                String sharedImage = bitmapToBase64(bitmap);
-                Log.d(LOG_TAG, sharedImage);
-
-                send("singleImage", CODE_SUCCES, sharedImage);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void handleSendMultipleImages(String value) {
-
-        // Intent-> Uri -> String -> Uri -> Bitmap -> String
-
-        ArrayList<Uri> someMultipleImageUris = new ArrayList<>();
-        String optimizationString = value.trim().replace("[", "").replace("]", "").replace(" ", "");
-        List<String> someMultipleImageUrisToString = new ArrayList<>(Arrays.asList(optimizationString.split(",")));
-        Log.e(LOG_TAG, String.valueOf(someMultipleImageUrisToString));
-
-        JSONObject jsonObject = new JSONObject();
-        for (int i = 0; i < someMultipleImageUrisToString.size(); i++) {
-            someMultipleImageUris.add(Uri.parse(someMultipleImageUrisToString.get(i)));
-        }
-
-        Log.d(LOG_TAG, String.valueOf(someMultipleImageUris));
-        try {
-            for (int i = 0; i < someMultipleImageUris.size(); i++) {
-                InputStream inputStream = mActivity.getContentResolver().openInputStream(someMultipleImageUris.get(i));
-                Bitmap bitmaps = BitmapFactory.decodeStream(inputStream);
-                jsonObject.put("imageItem" + i, bitmapToBase64(bitmaps));
-            }
-
-            Log.e(LOG_TAG, String.valueOf(jsonObject));
-            send("multipleImages", CODE_SUCCES, jsonObject);
-
-        } catch (IOException | JSONException e) {
-            send(CODE_ERROR, e);
-            e.printStackTrace();
-        }
-    }
-
-
-    private String bitmapToBase64(Bitmap bitmap) {
-
-        ImageUtil imageUtil = ImageUtil.getInstance();
-        Bitmap resizeBitmap = imageUtil.resizeBitmap(bitmap, mSetCallbackDataSetting.gerResizeBitmap());
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        resizeBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-        try {
-            byteArrayOutputStream.flush();
-            byteArrayOutputStream.close();
-        } catch (IOException e) {
-            send(CODE_ERROR, e);
-            e.printStackTrace();
-        }
-        return Base64.encodeToString(byteArray, Base64.NO_WRAP);
-    }
 }
