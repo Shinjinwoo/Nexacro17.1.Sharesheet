@@ -38,8 +38,6 @@ public class PreferenceManager {
     private static final int DEFAULT_VALUE_INT = -1;
     private static final long DEFAULT_VALUE_LONG = -1L;
     private static final float DEFAULT_VALUE_FLOAT = -1F;
-    public static final int CODE_SUCCES = 0;
-    public static final int CODE_ERROR = -1;
 
     public static final String LOG_TAG = "PreferenceManager";
 
@@ -47,7 +45,6 @@ public class PreferenceManager {
     private static Context mContext = null;
     private static int mResizeScale = 0;
 
-    private static ShareSheetObject mShareSheetObject = ShareSheetObject.getInstance();
 
 
     /**

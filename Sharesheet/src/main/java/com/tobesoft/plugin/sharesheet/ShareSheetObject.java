@@ -44,7 +44,6 @@ public class ShareSheetObject extends NexacroPlugin {
 
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
-    private static ShareSheetObject mShareSheetObject;
 
 
     public ShareSheetObject(String objectId) {
@@ -55,9 +54,6 @@ public class ShareSheetObject extends NexacroPlugin {
         mActivity = (Activity) NexacroActivity.getInstance();
     }
 
-    public static ShareSheetObject getInstance() {
-        return mShareSheetObject;
-    }
 
     @Override
     public void init(JSONObject jsonObject) {
@@ -89,13 +85,15 @@ public class ShareSheetObject extends NexacroPlugin {
     }
 
     public void execute() {
-        String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "testKey");
+        String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "SharesObjectKey");
         try {
             JSONObject jsonObject = new JSONObject(sendText);
             String getAction = jsonObject.getString("action");
             if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
                 execute(jsonObject);
                 Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendText);
+            } else {
+                send(CODE_ERROR,"No Shares Data");
             }
         } catch (JSONException e) {
             e.printStackTrace();
