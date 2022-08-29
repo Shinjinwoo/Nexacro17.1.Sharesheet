@@ -26,6 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class PreferenceManager {
 
     public static final String PREFERENCES_NAME = "rebuild_preference";
@@ -62,43 +66,49 @@ public class PreferenceManager {
         SharedPreferences prefs = getPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
 
-        String action = intent.getAction();
-        String type = intent.getType();
-        String someValue = "";
+        Completable.create(e -> {
+                    String action = intent.getAction();
+                    String type = intent.getType();
+                    String someValue = "";
 
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
-                someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
-            } else if (type.startsWith("image/")) {
-                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                someValue = handleSendImage(someValue);
-                Log.e(TAG, "setIntentToJson someText: " + someValue);
-            } else if (type.startsWith("video")) {
-                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                Log.e(TAG, "setIntentToJson someText: " + someValue);
-            }
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
-            JSONObject jsonObject = handleSendMultipleImages(someValue);
-            someValue = String.valueOf(jsonObject);
+                    if (Intent.ACTION_SEND.equals(action) && type != null) {
+                        if ("text/plain".equals(type)) {
+                            someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
+                        } else if (type.startsWith("image/")) {
+                            someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                            someValue = handleSendImage(someValue);
+                            Log.e(TAG, "setIntentToJson someText: " + someValue);
+                        } else if (type.startsWith("video")) {
+                            someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                            Log.e(TAG, "setIntentToJson someText: " + someValue);
+                        }
+                    } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+                        someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
+                        JSONObject jsonObject = handleSendMultipleImages(someValue);
+                        someValue = String.valueOf(jsonObject);
 
-            Log.e(TAG, someValue);
-        } else {
-            Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
-        }
-        Log.d("PreferenceManager", "setIntentToJson: " + someValue);
+                        Log.e(TAG, someValue);
+                    } else {
+                        Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
+                    }
+                    Log.d("PreferenceManager", "setIntentToJson: " + someValue);
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("action", action);
-            jsonObject.put("type", type);
-            jsonObject.put("value", someValue);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("action", action);
+                        jsonObject.put("type", type);
+                        jsonObject.put("value", someValue);
+                    } catch (JSONException e2) {
+                        e2.printStackTrace();
+                    }
 
-        editor.putString(key, String.valueOf(jsonObject));
-        editor.commit();
+                    editor.putString(key, String.valueOf(jsonObject));
+
+                    e.onComplete();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(() -> editor.commit());
     }
 
     public static String handleSendImage(String value) {
