@@ -131,24 +131,6 @@ public class PreferenceManager {
     }
 
 
-    public static String getCompleteString(Context context, String key) {
-        SharedPreferences prefs = getPreferences(context);
-
-        String value = prefs.getString(key, DEFAULT_VALUE_STRING);
-        Log.d("PreferenceManager", "getString: " + value);
-
-        return value;
-    }
-
-
-    public static void setSharesDataViewModel(SharesDataViewModel viewModel) {
-        mSharesDataViewModel = viewModel;
-    }
-
-    public static SharesDataViewModel getSharesDataViewModel() {
-        return mSharesDataViewModel;
-    }
-
     public static JSONObject handleSendMultipleImages(String value) {
 
         ArrayList<Uri> someMultipleImageUris = new ArrayList<>();
