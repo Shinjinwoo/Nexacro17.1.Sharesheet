@@ -32,10 +32,6 @@ public class Main extends NexacroUpdatorActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        mSharesDataViewModel = new ViewModelProvider(this).get(SharesDataViewModel.class);
-
-        PreferenceManager.setSharesDataViewModel(mSharesDataViewModel);
-
         NexacroResourceManager.createInstance(this);
         NexacroResourceManager.getInstance().setDirect(true);
 

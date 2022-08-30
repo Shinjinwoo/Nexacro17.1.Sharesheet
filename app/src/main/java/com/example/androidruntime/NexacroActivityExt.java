@@ -28,13 +28,6 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        mSharesDataViewModel = new ViewModelProvider((ViewModelStoreOwner) getApplicationContext(), new SharesDataViewModelFactory())
-                .get(SharesDataViewModel.class);
-
-//        PreferenceManager.setSharesDataViewModel(mSharesDataViewModel);
-
-        Observer<String> SharesDataObserver = newData -> mShareSheetObject.execute();
-        mSharesDataViewModel.getSharesData().observe(this, SharesDataObserver);
 
         super.onCreate(savedInstanceState);
     }
@@ -47,9 +40,9 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     @Override
     protected void onResume() {
         super.onResume();
-//        if (mShareSheetObject != null) {
-//            mShareSheetObject.execute();
-//        }
+        if (mShareSheetObject != null) {
+            mShareSheetObject.execute();
+        }
     }
 
 

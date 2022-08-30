@@ -78,9 +78,18 @@ public class ShareSheetObject extends NexacroPlugin {
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
                 } else if (mServiceId.equals("init")) {
-                    JSONObject param = params.getJSONObject("param");
-
                     execute();
+                } else if (mServiceId.equals("sharesDataOtherApp")){
+                    JSONObject param = params.getJSONObject("param");
+                    String sendText = param.getString("sendData");
+
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, sendText);
+                    sendIntent.setType("text/plain");
+
+                    Intent shareIntent = Intent.createChooser(sendIntent, null);
+                    mActivity.startActivity(shareIntent);
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);

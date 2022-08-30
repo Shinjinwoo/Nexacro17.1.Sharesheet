@@ -72,34 +72,50 @@ public class PreferenceManager {
         mContext = context;
         mResizeScale = resizeScale;
 
-            SharedPreferences prefs = getPreferences(context);
-            SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences prefs = getPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
 
-            setCompletable(context, key, intent, resizeScale, editor)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .subscribe(
-                            new CompletableObserver() {
-                                @Override
-                                public void onSubscribe(@NonNull Disposable d) {
-                                    //아무것도 처리하지 않음
-                                }
+        String action = intent.getAction();
+        String type = intent.getType();
+        String someValue = "";
 
-                                @Override
-                                public void onComplete() {
-                                    Log.d(LOG_TAG, "onComplete called");
-                                    //TODO : PreferenceManager에서 JSon Object 발행시 SharesSheet Object에서 데이터 발행 사실 비동기처리
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
 
-                                    getSharesDataViewModel().getSharesData().setValue(getCompleteString(context,key));
-                                }
+            if ("text/plain".equals(type)) {
+                someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
+            } else if (type.startsWith("image/")) {
+                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                someValue = handleSendImage(someValue);
+                Log.e(TAG, "setIntentToJson someText: " + someValue);
+            } else if (type.startsWith("video")) {
+                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                Log.e(TAG, "setIntentToJson someText: " + someValue);
+            }
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
 
-                                @Override
-                                public void onError(@NonNull Throwable e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                    );
+            someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
+            JSONObject jsonObject = handleSendMultipleImages(someValue);
+            someValue = String.valueOf(jsonObject);
+
+            Log.e(TAG, someValue);
+        } else {
+
+
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("action", action);
+                jsonObject.put("type", type);
+                jsonObject.put("value", someValue);
+            } catch (JSONException e2) {
+                e2.printStackTrace();
+            }
+
+            editor.putString(key, String.valueOf(jsonObject));
+            editor.commit();
+
+            Log.d("PreferenceManager", "setIntentToJson: " + someValue);
         }
+    }
 
 
     public static String handleSendImage(String value) {
@@ -117,66 +133,6 @@ public class PreferenceManager {
             }
         }
         return "";
-    }
-
-    public static Completable setCompletable(Context context, String key, Intent intent, int resizeScale, SharedPreferences.Editor editor) {
-
-        Completable completable = Completable.create(
-                new CompletableOnSubscribe() {
-                    @Override
-                    public void subscribe(@NonNull CompletableEmitter emitter) throws Throwable {
-                        String action = intent.getAction();
-                        String type = intent.getType();
-                        String someValue = "";
-
-                        if (Intent.ACTION_SEND.equals(action) && type != null) {
-
-                            if ("text/plain".equals(type)) {
-                                someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
-                            } else if (type.startsWith("image/")) {
-                                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                                someValue = handleSendImage(someValue);
-                                Log.e(TAG, "setIntentToJson someText: " + someValue);
-                            } else if (type.startsWith("video")) {
-                                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                                Log.e(TAG, "setIntentToJson someText: " + someValue);
-                            }
-                        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-
-                            someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
-                            JSONObject jsonObject = handleSendMultipleImages(someValue);
-                            someValue = String.valueOf(jsonObject);
-
-                            Log.e(TAG, someValue);
-                        } else {
-
-
-                            JSONObject jsonObject = new JSONObject();
-                            try {
-                                jsonObject.put("action", action);
-                                jsonObject.put("type", type);
-                                jsonObject.put("value", someValue);
-                            } catch (JSONException e2) {
-                                e2.printStackTrace();
-                            }
-
-                            editor.putString(key, String.valueOf(jsonObject));
-                            editor.commit();
-
-                            emitter.onComplete();
-
-                            Log.d("PreferenceManager", "setIntentToJson: " + someValue);
-
-                        }
-                    }
-                }
-        );
-
-        return  mCompletable = completable;
-    }
-
-    public static Completable getCompletable() {
-        return mCompletable;
     }
 
 
