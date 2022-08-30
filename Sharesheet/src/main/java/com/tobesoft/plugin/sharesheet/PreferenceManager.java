@@ -9,12 +9,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.lifecycle.ViewModel;
+
 import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
-import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
+import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,14 +27,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.core.CompletableOnSubscribe;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -46,11 +44,17 @@ public class PreferenceManager {
     private static final long DEFAULT_VALUE_LONG = -1L;
     private static final float DEFAULT_VALUE_FLOAT = -1F;
 
+    private static SharesDataViewModel mSharesDataViewModel;
+
     public static final String LOG_TAG = "PreferenceManager";
 
 
     private static Context mContext = null;
     private static int mResizeScale = 0;
+
+    private static Completable mCompletable;
+
+    private static boolean mIsDataSettingOver = false;
 
 
     /**
@@ -68,77 +72,35 @@ public class PreferenceManager {
         mContext = context;
         mResizeScale = resizeScale;
 
-        SharedPreferences prefs = getPreferences(context);
-        SharedPreferences.Editor editor = prefs.edit();
+            SharedPreferences prefs = getPreferences(context);
+            SharedPreferences.Editor editor = prefs.edit();
 
-        Completable completable = Completable.create(
-                new CompletableOnSubscribe() {
-                    @Override
-                    public void subscribe(@NonNull CompletableEmitter emitter) throws Throwable {
-                        String action = intent.getAction();
-                        String type = intent.getType();
-                        String someValue = "";
+            setCompletable(context, key, intent, resizeScale, editor)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .subscribe(
+                            new CompletableObserver() {
+                                @Override
+                                public void onSubscribe(@NonNull Disposable d) {
+                                    //아무것도 처리하지 않음
+                                }
 
-                        if (Intent.ACTION_SEND.equals(action) && type != null) {
-                            if ("text/plain".equals(type)) {
-                                someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
-                            } else if (type.startsWith("image/")) {
-                                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                                someValue = handleSendImage(someValue);
-                                Log.e(TAG, "setIntentToJson someText: " + someValue);
-                            } else if (type.startsWith("video")) {
-                                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
-                                Log.e(TAG, "setIntentToJson someText: " + someValue);
+                                @Override
+                                public void onComplete() {
+                                    Log.d(LOG_TAG, "onComplete called");
+                                    //TODO : PreferenceManager에서 JSon Object 발행시 SharesSheet Object에서 데이터 발행 사실 비동기처리
+
+                                    getSharesDataViewModel().getSharesData().setValue(getCompleteString(context,key));
+                                }
+
+                                @Override
+                                public void onError(@NonNull Throwable e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-                            someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
-                            JSONObject jsonObject = handleSendMultipleImages(someValue);
-                            someValue = String.valueOf(jsonObject);
+                    );
+        }
 
-                            Log.e(TAG, someValue);
-                        } else {
-                            Log.d(TAG, "Can Not Start setIntentToJson(): type = " + type);
-                        }
-                        Log.d("PreferenceManager", "setIntentToJson: " + someValue);
-
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put("action", action);
-                            jsonObject.put("type", type);
-                            jsonObject.put("value", someValue);
-                        } catch (JSONException e2) {
-                            e2.printStackTrace();
-                        }
-
-                        editor.putString(key, String.valueOf(jsonObject));
-
-                        emitter.onComplete();
-                    }
-                }
-        );
-
-        completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(
-                        new CompletableObserver() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                                //아무것도 처리하지 않음
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                editor.commit();
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                e.printStackTrace();
-                            }
-                        }
-                );
-    }
 
     public static String handleSendImage(String value) {
         Uri imageUri = Uri.parse(value);
@@ -155,6 +117,85 @@ public class PreferenceManager {
             }
         }
         return "";
+    }
+
+    public static Completable setCompletable(Context context, String key, Intent intent, int resizeScale, SharedPreferences.Editor editor) {
+
+        Completable completable = Completable.create(
+                new CompletableOnSubscribe() {
+                    @Override
+                    public void subscribe(@NonNull CompletableEmitter emitter) throws Throwable {
+                        String action = intent.getAction();
+                        String type = intent.getType();
+                        String someValue = "";
+
+                        if (Intent.ACTION_SEND.equals(action) && type != null) {
+
+                            if ("text/plain".equals(type)) {
+                                someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
+                            } else if (type.startsWith("image/")) {
+                                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                                someValue = handleSendImage(someValue);
+                                Log.e(TAG, "setIntentToJson someText: " + someValue);
+                            } else if (type.startsWith("video")) {
+                                someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
+                                Log.e(TAG, "setIntentToJson someText: " + someValue);
+                            }
+                        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+
+                            someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
+                            JSONObject jsonObject = handleSendMultipleImages(someValue);
+                            someValue = String.valueOf(jsonObject);
+
+                            Log.e(TAG, someValue);
+                        } else {
+
+
+                            JSONObject jsonObject = new JSONObject();
+                            try {
+                                jsonObject.put("action", action);
+                                jsonObject.put("type", type);
+                                jsonObject.put("value", someValue);
+                            } catch (JSONException e2) {
+                                e2.printStackTrace();
+                            }
+
+                            editor.putString(key, String.valueOf(jsonObject));
+                            editor.commit();
+
+                            emitter.onComplete();
+
+                            Log.d("PreferenceManager", "setIntentToJson: " + someValue);
+
+                        }
+                    }
+                }
+        );
+
+        return  mCompletable = completable;
+    }
+
+    public static Completable getCompletable() {
+        return mCompletable;
+    }
+
+
+    public static String getCompleteString(Context context, String key) {
+        SharedPreferences prefs = getPreferences(context);
+
+        String value = prefs.getString(key, DEFAULT_VALUE_STRING);
+        Log.d("PreferenceManager", "getString: " + value);
+
+        return value;
+    }
+
+
+    public static void setSharesDataViewModel(SharesDataViewModel viewModel) {
+        mSharesDataViewModel = viewModel;
+    }
+
+    public static SharesDataViewModel getSharesDataViewModel() {
+        return mSharesDataViewModel;
     }
 
     public static JSONObject handleSendMultipleImages(String value) {
@@ -315,6 +356,7 @@ public class PreferenceManager {
 
         String value = prefs.getString(key, DEFAULT_VALUE_STRING);
         Log.d("PreferenceManager", "getString: " + value);
+
 
         return value;
     }

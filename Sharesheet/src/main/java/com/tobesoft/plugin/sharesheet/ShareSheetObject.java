@@ -25,6 +25,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableEmitter;
+import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.core.CompletableOnSubscribe;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleEmitter;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.core.SingleOnSubscribe;
+import io.reactivex.rxjava3.disposables.Disposable;
+
 
 public class ShareSheetObject extends NexacroPlugin {
 
@@ -36,6 +47,9 @@ public class ShareSheetObject extends NexacroPlugin {
     private static final String CALL_BACK = "_oncallback";
     private static final String METHOD_CALLMETHOD = "callMethod";
 
+
+    private Boolean mIsDataSettingOver = false;
+
     public static final int CODE_SUCCES = 0;
     public static final int CODE_ERROR = -1;
     public String mServiceId = "";
@@ -45,14 +59,21 @@ public class ShareSheetObject extends NexacroPlugin {
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
 
+    public static ShareSheetObject mShareSheetObject = null;
+
 
     public ShareSheetObject(String objectId) {
         super(objectId);
         mShareSheetInterface = (ShareSheetInterface) NexacroActivity.getInstance();
         mShareSheetInterface.setShareSheetObject(this);
 
+
         mActivity = (Activity) NexacroActivity.getInstance();
     }
+
+//    public static void getInstance() {
+//        mShareSheetObject = this;
+//    }
 
 
     @Override
@@ -74,9 +95,57 @@ public class ShareSheetObject extends NexacroPlugin {
                 if (mServiceId.equals("test")) {
                     send(CODE_SUCCES, "모듈 연동 성공");
                 } else if (mServiceId.equals("init")) {
-                    JSONObject param = params.getJSONObject("param");
 
-                    execute();
+
+                    PreferenceManager.getCompletable().subscribe(
+                            new CompletableObserver() {
+                                @Override
+                                public void onSubscribe(@NonNull Disposable d) {
+                                    //execute();
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                    execute();
+                                }
+
+                                @Override
+                                public void onError(@NonNull Throwable e) {
+
+                                }
+                            }
+                    );
+
+//                    Single<String> single = Single.create(
+//                            new SingleOnSubscribe<String>() {
+//                                @Override
+//                                public void subscribe(@NonNull SingleEmitter<String> emitter) throws Throwable {
+//                                    String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "SharesObjectKey");
+//                                    emitter.onSuccess(sendText);
+//                                }
+//                            }
+//                    );
+//
+//                    single.subscribe(
+//                            new SingleObserver<String>() {
+//                                @Override
+//                                public void onSubscribe(@NonNull Disposable d) {
+//
+//                                }
+//
+//                                @Override
+//                                public void onSuccess(@NonNull String s) {
+//                                    execute();
+//                                }
+//
+//                                @Override
+//                                public void onError(@NonNull Throwable e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                    );
+
+
                 }
             } catch (Exception e) {
                 send(CODE_ERROR, e);
@@ -85,7 +154,10 @@ public class ShareSheetObject extends NexacroPlugin {
     }
 
     public void execute() {
+
+
         String sendText = PreferenceManager.getString(mActivity.getApplicationContext(), "SharesObjectKey");
+
         try {
             JSONObject jsonObject = new JSONObject(sendText);
             String getAction = jsonObject.getString("action");

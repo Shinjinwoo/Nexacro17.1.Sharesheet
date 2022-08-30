@@ -2,22 +2,21 @@ package com.example.androidruntime;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.nexacro.NexacroResourceManager;
 import com.nexacro.NexacroUpdatorActivity;
 import com.tobesoft.plugin.sharesheet.PreferenceManager;
+import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModel;
+import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModelFactory;
 
-public class Main extends NexacroUpdatorActivity {
+public class Main extends NexacroUpdatorActivity  {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
+    private SharesDataViewModel mSharesDataViewModel;
 
 
     public Main() {
@@ -33,6 +32,10 @@ public class Main extends NexacroUpdatorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        mSharesDataViewModel = new ViewModelProvider(this).get(SharesDataViewModel.class);
+
+        PreferenceManager.setSharesDataViewModel(mSharesDataViewModel);
+
         NexacroResourceManager.createInstance(this);
         NexacroResourceManager.getInstance().setDirect(true);
 
@@ -46,8 +49,12 @@ public class Main extends NexacroUpdatorActivity {
              * @param Key : PreferenceManager에 데이터를 저장할때 필요한 키 입니다.
              * @param intent : 앱간 Intent Filter 로 공유 받은 데이터가 담긴 intent를 전달 합니다.
              * @param resizeScale : 넥사크로로 리턴받을 이미지의 리사이즈 스케일 값을 적습니다.
+             *                      resizeScale : 최대 해상도
              */
-            PreferenceManager.setIntentToJson(getApplicationContext(),"SharesObjectKey",intent,300);
+
+            PreferenceManager.setIntentToJson(getApplicationContext(),"SharesObjectKey",intent,600);
+
+
 
             String bootstrapURL = intent.getStringExtra("bootstrapURL");
             String projectUrl = intent.getStringExtra("projectUrl");
