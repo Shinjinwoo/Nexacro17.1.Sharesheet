@@ -80,7 +80,6 @@ public class PreferenceManager {
         String someValue = "";
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
-
             if ("text/plain".equals(type)) {
                 someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
             } else if (type.startsWith("image/")) {
@@ -92,29 +91,25 @@ public class PreferenceManager {
                 Log.e(TAG, "setIntentToJson someText: " + someValue);
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-
             someValue = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toString();
             JSONObject jsonObject = handleSendMultipleImages(someValue);
             someValue = String.valueOf(jsonObject);
-
             Log.e(TAG, someValue);
-        } else {
-
-
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("action", action);
-                jsonObject.put("type", type);
-                jsonObject.put("value", someValue);
-            } catch (JSONException e2) {
-                e2.printStackTrace();
-            }
-
-            editor.putString(key, String.valueOf(jsonObject));
-            editor.commit();
-
-            Log.d("PreferenceManager", "setIntentToJson: " + someValue);
         }
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("action", action);
+            jsonObject.put("type", type);
+            jsonObject.put("value", someValue);
+        } catch (JSONException e2) {
+            e2.printStackTrace();
+        }
+
+        editor.putString(key, String.valueOf(jsonObject));
+        editor.commit();
+
+        Log.d("PreferenceManager", "setIntentToJson: " + someValue);
     }
 
 

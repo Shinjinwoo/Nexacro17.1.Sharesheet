@@ -48,9 +48,7 @@ public class Main extends NexacroUpdatorActivity  {
              *                      resizeScale : 최대 해상도
              */
 
-            PreferenceManager.setIntentToJson(getApplicationContext(),"SharesObjectKey",intent,600);
-
-
+            PreferenceManager.setIntentToJson(getApplicationContext(),"SharesObjectKey",intent,300);
 
             String bootstrapURL = intent.getStringExtra("bootstrapURL");
             String projectUrl = intent.getStringExtra("projectUrl");
