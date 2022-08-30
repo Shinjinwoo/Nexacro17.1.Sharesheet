@@ -49,10 +49,6 @@ public class ShareSheetObject extends NexacroPlugin {
         mActivity = (Activity) NexacroActivity.getInstance();
     }
 
-    public static ShareSheetObject getInstance() {
-        return mShareSheetObject;
-    }
-
     @Override
     public void init(JSONObject jsonObject) {
 
@@ -73,20 +69,20 @@ public class ShareSheetObject extends NexacroPlugin {
                     send(CODE_SUCCES, "모듈 연동 성공");
                 } else if (mServiceId.equals("init")) {
                     execute();
-                } else if (mServiceId.equals("sharesDataOtherApp")){
+                } else if (mServiceId.equals("sharesDataOtherApp")) {
                     JSONObject param = params.getJSONObject("param");
 
-                    String type = param.optString("type","text/plain");
+                    String type = param.optString("type", "text/plain");
                     String sendData = param.getString("sendData");
 
                     if (type.equals("text/plain")) {
                         sendTextDataToOtherApp(sendData);
-                    } else if ( type.equals("singleImage")){
+                    } else if (type.equals("singleImage")) {
                         sendImageToOtherApp(sendData);
                     } else if (type.equals("multipleImages")) {
                         sendMultipleImagesToOtherApp(sendData);
                     } else {
-                        send(CODE_ERROR,"Invalid Type");
+                        send(CODE_ERROR, "Invalid Type");
                     }
                 }
             } catch (Exception e) {
@@ -185,7 +181,7 @@ public class ShareSheetObject extends NexacroPlugin {
     }
 
     public void sendImageToOtherApp(String filePath) {
-        Log.e(LOG_TAG,filePath);
+        Log.e(LOG_TAG, filePath);
         Uri fileURI = getUriFromPath(filePath);
 
         Intent shareIntent = new Intent();
@@ -193,18 +189,18 @@ public class ShareSheetObject extends NexacroPlugin {
         shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
         shareIntent.setType("image/*");
 
-        mActivity.startActivity(Intent.createChooser(shareIntent,null));
+        mActivity.startActivity(Intent.createChooser(shareIntent, null));
     }
 
 
     public void sendMultipleImagesToOtherApp(String files) {
-        Log.e(LOG_TAG,files);
+        Log.e(LOG_TAG, files);
 
         ArrayList<Uri> imageUriList = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(files);
 
-            for (int i = 0; i<jsonArray.length(); i++ ) {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 imageUriList.add(getUriFromPath(jsonObject.getString("fullpath")));
                 Log.e(LOG_TAG, String.valueOf(jsonObject));
@@ -221,9 +217,8 @@ public class ShareSheetObject extends NexacroPlugin {
         shareIntent.putExtra(Intent.EXTRA_STREAM, imageUriList);
         shareIntent.setType("image/*");
 
-        mActivity.startActivity(Intent.createChooser(shareIntent,null));
+        mActivity.startActivity(Intent.createChooser(shareIntent, null));
     }
-
 
 
     public Uri getUriFromPath(String path) {
