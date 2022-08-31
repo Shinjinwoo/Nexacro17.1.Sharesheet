@@ -97,9 +97,12 @@ public class ShareSheetObject extends NexacroPlugin {
             try {
                 JSONObject jsonObject = new JSONObject(sendData);
                 String getAction = jsonObject.getString("action");
-                if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
-                    execute(jsonObject);
-                    Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendData);
+                String getValue = jsonObject.getString("value");
+                if (!getAction.equals("android.intent.action.MAIN")&& !getValue.equals("")) {
+                    if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
+                        execute(jsonObject);
+                        Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendData);
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -171,13 +174,12 @@ public class ShareSheetObject extends NexacroPlugin {
 
 
     public void sendTextDataToOtherApp(String sendText) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, sendText);
-        sendIntent.setType("text/plain");
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, sendText);
+        shareIntent.setType("text/plain");
 
-        Intent shareIntent = Intent.createChooser(sendIntent, "test");
-        mActivity.startActivity(shareIntent);
+        mActivity.startActivity(Intent.createChooser(shareIntent, null));
     }
 
     public void sendImageToOtherApp(String filePath) {
