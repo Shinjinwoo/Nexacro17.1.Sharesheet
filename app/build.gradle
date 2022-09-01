@@ -39,17 +39,11 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.5.0'
-    implementation 'com.google.android.material:material:1.6.1'
-
-    //RxJava
-    implementation "io.reactivex.rxjava3:rxjava:3.1.5"
-    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-
     implementation 'com.android.support:multidex:1.0.3'
 
     implementation files('libs/nexacro.aar')
     implementation project(path: ':Sharesheet')
-    implementation files('libs\\plugin-common-lib-1.4.0.jar')
+    implementation files('libs/plugin-common-lib-1.4.0.jar')
 
 
 }

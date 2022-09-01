@@ -12,10 +12,8 @@ import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 
-import androidx.lifecycle.ViewModel;
 
 import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
-import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,13 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.CompletableEmitter;
-import io.reactivex.rxjava3.core.CompletableObserver;
-import io.reactivex.rxjava3.core.CompletableOnSubscribe;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+
 
 public class PreferenceManager {
 
@@ -44,7 +36,6 @@ public class PreferenceManager {
     private static final long DEFAULT_VALUE_LONG = -1L;
     private static final float DEFAULT_VALUE_FLOAT = -1F;
 
-    private static SharesDataViewModel mSharesDataViewModel;
 
     public static final String LOG_TAG = "PreferenceManager";
 
@@ -52,9 +43,6 @@ public class PreferenceManager {
     private static Context mContext = null;
     private static int mResizeScale = 0;
 
-    private static Completable mCompletable;
-
-    private static boolean mIsDataSettingOver = false;
 
 
     /**

@@ -1,29 +1,19 @@
 package com.example.androidruntime;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.nexacro.NexacroActivity;
 import com.tobesoft.plugin.sharesheet.PreferenceManager;
 import com.tobesoft.plugin.sharesheet.ShareSheetObject;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
-import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModel;
-import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModelFactory;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 public class NexacroActivityExt extends NexacroActivity implements ShareSheetInterface {
 
     String LOG_TAG = this.getClass().getSimpleName();
-    private SharesDataViewModel mSharesDataViewModel;
 
 
     @Override
