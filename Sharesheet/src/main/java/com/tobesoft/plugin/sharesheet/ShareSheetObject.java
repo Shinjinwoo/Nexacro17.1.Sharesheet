@@ -45,8 +45,6 @@ public class ShareSheetObject extends NexacroPlugin {
 
     private Activity mActivity;
     private ShareSheetInterface mShareSheetInterface;
-    private static ShareSheetObject mShareSheetObject;
-
 
     public ShareSheetObject(String objectId) {
         super(objectId);

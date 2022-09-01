@@ -4,19 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.nexacro.NexacroResourceManager;
 import com.nexacro.NexacroUpdatorActivity;
 import com.tobesoft.plugin.sharesheet.PreferenceManager;
-import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModel;
-import com.tobesoft.plugin.sharesheet.viewmodel.SharesDataViewModelFactory;
+
 
 public class Main extends NexacroUpdatorActivity  {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
-    private SharesDataViewModel mSharesDataViewModel;
 
 
     public Main() {
