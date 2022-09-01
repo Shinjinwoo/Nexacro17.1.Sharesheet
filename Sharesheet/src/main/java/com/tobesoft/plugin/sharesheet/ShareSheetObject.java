@@ -86,11 +86,13 @@ public class ShareSheetObject extends NexacroPlugin {
                     if (type.equals("text/plain")) {
                         sendTextDataToOtherApp(sendData);
                     } else if (type.equals("singleImage")) {
-                        isCheckPermission();
-                        sendImageToOtherApp(sendData);
+                        if (isCheckPermission()) {
+                            sendImageToOtherApp(sendData);
+                        }
                     } else if (type.equals("multipleImages")) {
-                        isCheckPermission();
-                        sendMultipleImagesToOtherApp(sendData);
+                        if (isCheckPermission()) {
+                            sendMultipleImagesToOtherApp(sendData);
+                        }
                     } else {
                         send(CODE_ERROR, "Invalid Type");
                     }
@@ -183,7 +185,7 @@ public class ShareSheetObject extends NexacroPlugin {
     }
 
 
-    public void isCheckPermission() {
+    public boolean isCheckPermission() {
 
         List<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -191,6 +193,11 @@ public class ShareSheetObject extends NexacroPlugin {
 
         if (!requestPermissions.isEmpty()) {
             ActivityCompat.requestPermissions(mActivity, requestPermissions.toArray(new String[requestPermissions.size()]), PermissionRequest.CAMERA_EXTERNAL_STORAGE);
+
+            isCheckPermission();
+            return false;
+        } else {
+            return true;
         }
     }
 
