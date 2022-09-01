@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 
 
+import androidx.annotation.NonNull;
+
 import com.nexacro.NexacroActivity;
 import com.tobesoft.plugin.sharesheet.PreferenceManager;
 import com.tobesoft.plugin.sharesheet.ShareSheetObject;
@@ -60,6 +62,11 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
         this.mShareSheetObject = obj;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permission, @NonNull int[] grantResults) {
+        mShareSheetObject.onRequestPermissionsResult(requestCode,permission,grantResults);
+        super.onRequestPermissionsResult(requestCode, permission, grantResults);
+    }
 
     /** Sharesheet 연동 코드 ****************************************************************************/
 

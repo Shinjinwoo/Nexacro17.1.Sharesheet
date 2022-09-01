@@ -1,16 +1,22 @@
 package com.tobesoft.plugin.sharesheet;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
 import com.nexacro.NexacroActivity;
 import com.nexacro.plugin.NexacroPlugin;
+import com.tobesoft.plugin.plugincommonlib.info.PermissionRequest;
+import com.tobesoft.plugin.plugincommonlib.util.PermissionUtil;
 import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
 
 import org.json.JSONArray;
@@ -18,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ShareSheetObject extends NexacroPlugin {
@@ -30,7 +37,7 @@ public class ShareSheetObject extends NexacroPlugin {
     private static final String CALL_BACK = "_oncallback";
     private static final String METHOD_CALLMETHOD = "callMethod";
 
-    public static final int CODE_SUCCES = 0;
+    public static final int CODE_SUCCESS = 0;
     public static final int CODE_ERROR = -1;
     public String mServiceId = "";
 
@@ -66,7 +73,7 @@ public class ShareSheetObject extends NexacroPlugin {
                 JSONObject params = paramObject.getJSONObject("params");
                 mServiceId = params.getString("serviceid");
                 if (mServiceId.equals("test")) {
-                    send(CODE_SUCCES, "모듈 연동 성공");
+                    send(CODE_SUCCESS, "모듈 연동 성공");
                 } else if (mServiceId.equals("init")) {
                     execute();
                 } else if (mServiceId.equals("sharesDataOtherApp")) {
@@ -75,11 +82,14 @@ public class ShareSheetObject extends NexacroPlugin {
                     String type = param.optString("type", "text/plain");
                     String sendData = param.getString("sendData");
 
+
                     if (type.equals("text/plain")) {
                         sendTextDataToOtherApp(sendData);
                     } else if (type.equals("singleImage")) {
+                        isCheckPermission();
                         sendImageToOtherApp(sendData);
                     } else if (type.equals("multipleImages")) {
+                        isCheckPermission();
                         sendMultipleImagesToOtherApp(sendData);
                     } else {
                         send(CODE_ERROR, "Invalid Type");
@@ -117,11 +127,11 @@ public class ShareSheetObject extends NexacroPlugin {
             String value = jsonObject.getString("value");
 
             if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-                send("text/plain", CODE_SUCCES, value);
+                send("text/plain", CODE_SUCCESS, value);
             } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
-                send("singleImage", CODE_SUCCES, value);
+                send("singleImage", CODE_SUCCESS, value);
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
-                send("multipleImages", CODE_SUCCES, new JSONObject(value));
+                send("multipleImages", CODE_SUCCESS, new JSONObject(value));
             } else {
                 send(CODE_ERROR, jsonObject);
             }
@@ -170,6 +180,42 @@ public class ShareSheetObject extends NexacroPlugin {
             mServiceId = null;
         }
         return false;
+    }
+
+
+    public void isCheckPermission() {
+
+        List<String> permissions = new ArrayList<>();
+        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        List<String> requestPermissions = PermissionUtil.hasPermissions(mActivity, permissions);
+
+        if (!requestPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(mActivity, requestPermissions.toArray(new String[requestPermissions.size()]), PermissionRequest.CAMERA_EXTERNAL_STORAGE);
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PermissionRequest.CAMERA_EXTERNAL_STORAGE: {
+                boolean isPermissionGranted = true;
+                for (int i = 0; i < permissions.length; i++) {
+                    if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        Log.d(LOG_TAG, "permissions[" + i + "] = " + permissions[i] + " : PERMISSION_DENIED");
+                        isPermissionGranted = false;
+                    }
+                }
+                if (isPermissionGranted) {
+                    try {
+                        send(CODE_SUCCESS, "Permission Granted");
+                    } catch (Exception e) {
+                        send(CODE_ERROR, METHOD_CALLMETHOD + ":" + e.getMessage());
+                    }
+                } else {
+                    send(CODE_ERROR, "permission denied");
+                }
+                break;
+            }
+        }
     }
 
 
