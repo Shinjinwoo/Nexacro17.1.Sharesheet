@@ -29,6 +29,9 @@ import java.util.List;
 
 public class ShareSheetObject extends NexacroPlugin {
 
+
+    //ShareSheet < Object >
+
     private final String LOG_TAG = this.getClass().getSimpleName();
     private static final String SVCID = "svcid";
     private static final String REASON = "reason";
@@ -70,11 +73,10 @@ public class ShareSheetObject extends NexacroPlugin {
             try {
                 JSONObject params = paramObject.getJSONObject("params");
                 mServiceId = params.getString("serviceid");
-                if (mServiceId.equals("test")) {
-                    send(CODE_SUCCESS, "모듈 연동 성공");
-                } else if (mServiceId.equals("init")) {
-                    execute();
+                if (mServiceId.equals("callSharedData")) {
+                    callSharedData();
                 } else if (mServiceId.equals("sharesDataOtherApp")) {
+
                     JSONObject param = params.getJSONObject("param");
 
                     String type = param.optString("type", "text/plain");
@@ -101,16 +103,28 @@ public class ShareSheetObject extends NexacroPlugin {
         }
     }
 
-    public void execute() {
+    public void callSharedData() {
         String sendData = PreferenceManager.getString(mActivity.getApplicationContext(), "SharesObjectKey");
+        PreferenceManager.removeKey(mActivity.getApplicationContext(), "SharesObjectKey");
         if (!sendData.equals("")) {
             try {
                 JSONObject jsonObject = new JSONObject(sendData);
                 String getAction = jsonObject.getString("action");
+                String getType = jsonObject.getString("type");
                 String getValue = jsonObject.getString("value");
-                if (!getAction.equals("android.intent.action.MAIN")&& !getValue.equals("")) {
+
+                if (!getAction.equals("android.intent.action.MAIN") && !getValue.equals("")) {
                     if (getAction.equals("android.intent.action.SEND") || getAction.equals("android.intent.action.SEND_MULTIPLE")) {
-                        execute(jsonObject);
+
+                        if (Intent.ACTION_SEND.equals(getAction) && "text/plain".equals(getType)) {
+                            send("text/plain", CODE_SUCCESS, getValue);
+                        } else if (Intent.ACTION_SEND.equals(getAction) && getType.startsWith("image/")) {
+                            send("singleImage", CODE_SUCCESS, getValue);
+                        } else if (Intent.ACTION_SEND_MULTIPLE.equals(getAction) && getType.startsWith("image/")) {
+                            send("multipleImages", CODE_SUCCESS, new JSONObject(getValue));
+                        } else {
+                            send(CODE_ERROR, jsonObject);
+                        }
                         Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendData);
                     }
                 }
@@ -120,28 +134,29 @@ public class ShareSheetObject extends NexacroPlugin {
         }
     }
 
-    public void execute(JSONObject jsonObject) {
-        try {
-            String action = jsonObject.getString("action");
-            String type = jsonObject.getString("type");
-            String value = jsonObject.getString("value");
-
-            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-                send("text/plain", CODE_SUCCESS, value);
-            } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
-                send("singleImage", CODE_SUCCESS, value);
-            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
-                send("multipleImages", CODE_SUCCESS, new JSONObject(value));
-            } else {
-                send(CODE_ERROR, jsonObject);
-            }
-
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, String.valueOf(e));
-            send(CODE_ERROR, e);
-            e.printStackTrace();
-        }
-    }
+//    public void callSharedDataByJsonObject(JSONObject jsonObject) {
+//        // execute() 메소드병 바꾸기.
+//        try {
+//            String action = jsonObject.getString("action");
+//            String type = jsonObject.getString("type");
+//            String value = jsonObject.getString("value");
+//
+//            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
+//                send("text/plain", CODE_SUCCESS, value);
+//            } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
+//                send("singleImage", CODE_SUCCESS, value);
+//            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
+//                send("multipleImages", CODE_SUCCESS, new JSONObject(value));
+//            } else {
+//                send(CODE_ERROR, jsonObject);
+//            }
+//
+//        } catch (JSONException e) {
+//            Log.e(LOG_TAG, String.valueOf(e));
+//            send(CODE_ERROR, e);
+//            e.printStackTrace();
+//        }
+//    }
 
 
     public boolean send(int reason, Object retval) {

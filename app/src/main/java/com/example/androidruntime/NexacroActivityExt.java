@@ -33,20 +33,22 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     protected void onResume() {
         super.onResume();
         if (mShareSheetObject != null) {
-            mShareSheetObject.execute();
+            mShareSheetObject.callSharedData();
         }
+
+        // JS 엔진이 비동기로 돌아갈 가능성이 100%.
     }
 
 
     @Override
     protected void onPause() {
-        PreferenceManager.removeKey(getApplicationContext(),"SharesObjectKey");
+        //PreferenceManager.removeKey(getApplicationContext(),"SharesObjectKey");
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        PreferenceManager.removeKey(getApplicationContext(),"SharesObjectKey");
+        //PreferenceManager.removeKey(getApplicationContext(),"SharesObjectKey");
         super.onDestroy();
     }
 
