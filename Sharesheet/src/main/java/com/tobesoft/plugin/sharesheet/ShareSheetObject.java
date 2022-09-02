@@ -109,6 +109,7 @@ public class ShareSheetObject extends NexacroPlugin {
         if (!sendData.equals("")) {
             try {
                 JSONObject jsonObject = new JSONObject(sendData);
+
                 String getAction = jsonObject.getString("action");
                 String getType = jsonObject.getString("type");
                 String getValue = jsonObject.getString("value");
@@ -125,11 +126,11 @@ public class ShareSheetObject extends NexacroPlugin {
                         } else {
                             send(CODE_ERROR, jsonObject);
                         }
-                        Log.e(LOG_TAG, "::::::::::::::::::::::::::" + sendData);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                send(CODE_ERROR,e);
             }
         }
     }

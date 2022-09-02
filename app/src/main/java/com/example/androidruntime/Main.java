@@ -42,7 +42,7 @@ public class Main extends NexacroUpdatorActivity  {
              *              모듈과 소통하기 위한 키는 "SharesObjectKey" 고정입니다.
              * @param intent : 앱간 IntentFilter 로 공유 받은 데이터가 담긴 intent를 전달 합니다.
              * @param resizeScale : 넥사크로로 리턴받을 이미지의 리사이즈 스케일 값을 적습니다.
-             *                      resizeScale : 최대 해상도
+             *                      resizeScale : 가로,세로 최대 해상도
              */
 
             PreferenceManager.setIntentToJson(getApplicationContext(),"SharesObjectKey",intent,300);
