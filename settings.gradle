@@ -1,3 +1,3 @@
-include ':Sharesheet'
+include ':sharesheet-object'
 include ':app'
-rootProject.name = "nexacro17.1.Sharesheet"
+rootProject.name = "NexacroN.Sharesheet"

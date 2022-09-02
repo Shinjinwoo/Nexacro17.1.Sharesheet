@@ -42,7 +42,7 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 
     implementation files('libs/nexacro.aar')
-    implementation project(path: ':Sharesheet')
+    implementation project(path: ':sharesheet-object')
     implementation files('libs/plugin-common-lib-1.4.0.jar')
 
 
