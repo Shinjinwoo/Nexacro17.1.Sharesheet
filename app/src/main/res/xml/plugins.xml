@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin-config>
-    <plugin name="Sharesheet" class="com.tobesoft.plugin.sharesheet.ShareSheetObject"/>
+    <plugin name="Sharesheet" class="com.tobesoft.plugin.sharesheetobject.ShareSheetObject"/>
 </plugin-config>

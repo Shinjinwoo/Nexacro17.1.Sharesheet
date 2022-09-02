@@ -1,4 +1,4 @@
-package com.tobesoft.plugin.sharesheet;
+package com.tobesoft.plugin.sharesheetobject;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -17,7 +17,7 @@ import com.kh.plugin.plugincommonlib.info.PermissionRequest;
 import com.kh.plugin.plugincommonlib.util.PermissionUtil;
 import com.nexacro.NexacroActivity;
 import com.nexacro.plugin.NexacroPlugin;
-import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
+import com.tobesoft.plugin.sharesheetobject.plugininterface.ShareSheetInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;

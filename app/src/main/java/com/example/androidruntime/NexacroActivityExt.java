@@ -1,6 +1,5 @@
 package com.example.androidruntime;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -8,9 +7,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.nexacro.NexacroActivity;
-import com.tobesoft.plugin.sharesheet.PreferenceManager;
-import com.tobesoft.plugin.sharesheet.ShareSheetObject;
-import com.tobesoft.plugin.sharesheet.plugininterface.ShareSheetInterface;
+import com.tobesoft.plugin.sharesheetobject.ShareSheetObject;
+import com.tobesoft.plugin.sharesheetobject.plugininterface.ShareSheetInterface;
 
 
 

@@ -1,4 +1,4 @@
-package com.tobesoft.plugin.sharesheet;
+package com.tobesoft.plugin.sharesheetobject;
 
 import static android.content.ContentValues.TAG;
 

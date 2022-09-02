@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.nexacro.NexacroResourceManager;
 import com.nexacro.NexacroUpdatorActivity;
-import com.tobesoft.plugin.sharesheet.PreferenceManager;
+import com.tobesoft.plugin.sharesheetobject.PreferenceManager;
 
 
 public class Main extends NexacroUpdatorActivity  {
