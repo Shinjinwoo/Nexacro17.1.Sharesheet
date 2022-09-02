@@ -12,8 +12,7 @@ import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 
-
-import com.tobesoft.plugin.plugincommonlib.util.ImageUtil;
+import com.kh.plugin.plugincommonlib.util.ImageUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +69,7 @@ public class PreferenceManager {
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
                 someValue = intent.getStringExtra(Intent.EXTRA_TEXT);
+
             } else if (type.startsWith("image/")) {
                 someValue = intent.getParcelableExtra(Intent.EXTRA_STREAM).toString();
                 someValue = handleSendImage(someValue);

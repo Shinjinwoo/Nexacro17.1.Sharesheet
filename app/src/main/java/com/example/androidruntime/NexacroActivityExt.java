@@ -1,5 +1,6 @@
 package com.example.androidruntime;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -20,6 +21,7 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
 
         super.onCreate(savedInstanceState);
     }
