@@ -40,13 +40,13 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
 
     @Override
     protected void onPause() {
-        PreferenceManager.clear(getApplicationContext());
+        PreferenceManager.removeKey(getApplicationContext(),"SharesObjectKey");
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        PreferenceManager.clear(getApplicationContext());
+        PreferenceManager.removeKey(getApplicationContext(),"SharesObjectKey");
         super.onDestroy();
     }
 
