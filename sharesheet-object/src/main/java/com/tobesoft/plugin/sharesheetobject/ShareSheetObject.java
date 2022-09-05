@@ -127,7 +127,10 @@ public class ShareSheetObject extends NexacroPlugin {
                             } else {
                                 send(CODE_ERROR, jsonObject);
                             }
-                        } send (CODE_ERROR,METHOD_CALLMETHOD+ " : Unrecognized Action");
+                        }
+                        else {
+                            send (CODE_ERROR,METHOD_CALLMETHOD+ " : Unrecognized Action");
+                        }
                     } else {
                         send(CODE_ERROR,METHOD_CALLMETHOD+ "No Value For Send");
                     }

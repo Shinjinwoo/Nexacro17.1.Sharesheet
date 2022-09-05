@@ -18,8 +18,8 @@ public class Main extends NexacroUpdatorActivity  {
     public Main() {
         super();
 
-        setBootstrapURL("http://smart.tobesoft.co.kr/NexacroN/Sharesheet/start_android.json");
-        setProjectURL("http://smart.tobesoft.co.kr/NexacroN/Sharesheet/");
+        setBootstrapURL("http://smart.tobesoft.co.kr/NexacroN/SharesheetPlugin/start_android.json");
+        setProjectURL("http://smart.tobesoft.co.kr/NexacroN/SharesheetPlugin/");
 
         this.setStartupClass(NexacroActivityExt.class);
     }
