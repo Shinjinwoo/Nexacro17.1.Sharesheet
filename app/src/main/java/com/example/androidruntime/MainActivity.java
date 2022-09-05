@@ -10,12 +10,12 @@ import com.nexacro.NexacroUpdatorActivity;
 import com.tobesoft.plugin.sharesheetobject.PreferenceManager;
 
 
-public class Main extends NexacroUpdatorActivity  {
+public class MainActivity extends NexacroUpdatorActivity  {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
 
 
-    public Main() {
+    public MainActivity() {
         super();
 
         setBootstrapURL("http://smart.tobesoft.co.kr/NexacroN/SharesheetPlugin/_android_/start_android.json");
