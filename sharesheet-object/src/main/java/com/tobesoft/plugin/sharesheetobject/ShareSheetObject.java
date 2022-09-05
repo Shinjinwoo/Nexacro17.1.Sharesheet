@@ -142,30 +142,6 @@ public class ShareSheetObject extends NexacroPlugin {
         }
     }
 
-//    public void callSharedDataByJsonObject(JSONObject jsonObject) {
-//        // execute() 메소드병 바꾸기.
-//        try {
-//            String action = jsonObject.getString("action");
-//            String type = jsonObject.getString("type");
-//            String value = jsonObject.getString("value");
-//
-//            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-//                send("text/plain", CODE_SUCCESS, value);
-//            } else if (Intent.ACTION_SEND.equals(action) && type.startsWith("image/")) {
-//                send("singleImage", CODE_SUCCESS, value);
-//            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type.startsWith("image/")) {
-//                send("multipleImages", CODE_SUCCESS, new JSONObject(value));
-//            } else {
-//                send(CODE_ERROR, jsonObject);
-//            }
-//
-//        } catch (JSONException e) {
-//            Log.e(LOG_TAG, String.valueOf(e));
-//            send(CODE_ERROR, e);
-//            e.printStackTrace();
-//        }
-//    }
-
 
     public boolean send(int reason, Object retval) {
 
