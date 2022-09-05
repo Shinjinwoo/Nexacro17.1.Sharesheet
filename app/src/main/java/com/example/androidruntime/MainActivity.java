@@ -12,9 +12,6 @@ import com.tobesoft.plugin.sharesheetobject.PreferenceManager;
 
 public class MainActivity extends NexacroUpdatorActivity  {
 
-    private final String LOG_TAG = this.getClass().getSimpleName();
-
-
     public MainActivity() {
         super();
 

@@ -42,7 +42,7 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
 
 
     /**
-     * SharesheetPlugin 연동 코드
+     * ShareSheetPlugin 연동 코드
      *************************************************************************************************/
 
     private ShareSheetObject mShareSheetObject;
@@ -66,7 +66,7 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
         }
     }
 
-    /** SharesheetPlugin 연동 코드 ****************************************************************************/
+    /** ShareSheetPlugin 연동 코드 ****************************************************************************/
 
 
 }
