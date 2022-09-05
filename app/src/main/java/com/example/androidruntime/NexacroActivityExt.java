@@ -29,14 +29,6 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
         super.setContentView(view);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (mShareSheetObject != null) {
-            mShareSheetObject.callSharedData();
-        }
-    }
-
 
     @Override
     protected void onPause() {
@@ -64,6 +56,14 @@ public class NexacroActivityExt extends NexacroActivity implements ShareSheetInt
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permission, @NonNull int[] grantResults) {
         mShareSheetObject.onRequestPermissionsResult(requestCode,permission,grantResults);
         super.onRequestPermissionsResult(requestCode, permission, grantResults);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mShareSheetObject != null) {
+            mShareSheetObject.callSharedData();
+        }
     }
 
     /** Sharesheet 연동 코드 ****************************************************************************/
