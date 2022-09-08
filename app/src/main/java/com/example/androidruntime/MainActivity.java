@@ -44,6 +44,8 @@ public class MainActivity extends NexacroUpdatorActivity  {
 
             PreferenceManager.setIntentToJson(getApplicationContext(),"SharesObjectKey",intent,300);
 
+            //진짜 모듈연동 힘들당
+
             String bootstrapURL = intent.getStringExtra("bootstrapURL");
             String projectUrl = intent.getStringExtra("projectUrl");
 
